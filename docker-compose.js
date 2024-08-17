@@ -1,4 +1,4 @@
-const POSTGRES_DB = "postgres-backup-tool";
+const POSTGRES_DB = "postgres-azure-backup";
 const POSTGRES_USER = "postgres";
 const POSTGRES_PASSWORD = "postgres";
 

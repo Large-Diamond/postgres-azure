@@ -18,7 +18,7 @@
             "port": 5432,
             "driver": "PostgreSQL",
             "name": "local",
-            "database": "postgres-backup-tool",
+            "database": "postgres-azure-backup",
             "username": "postgres",
             "password": "postgres"
         }
