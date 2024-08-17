@@ -19,7 +19,7 @@ docker_utils.build_and_push_docker_img(
     src=root_directory,
     version=version,
     tag_prefix="server",
-    image_name="postgres-backup-tool",
+    image_name="postgres-azure-backup",
     docker_username=username,
     docker_password=secrets["docker_password"],
     github_access_token=sys.argv[1],

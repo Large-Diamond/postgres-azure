@@ -2,11 +2,11 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Spring Boot-App<postgres-backup-tool>",
+            "name": "Spring Boot-App<postgres-azure-backup>",
             "request": "launch",
             "cwd": "${workspaceFolder}/server",
             "mainClass": "io.github.mucsi96.postgresbackuptool.App",
-            "projectName": "postgres-backup-tool",
+            "projectName": "postgres-azure-backup",
             "args": ""
         }
     ]
