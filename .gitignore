@@ -1,0 +1,12 @@
+.env
+
+target
+
+screenshots
+
+.ansible/
+
+node_modules
+
+dist
+.DS_Store

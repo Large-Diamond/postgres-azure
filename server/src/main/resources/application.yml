@@ -1,0 +1,31 @@
+s3:
+  endpoint: ${AWS_S3_ENDPOINT_URL}
+  region: ${AWS_S3_REGION}
+  access-key: ${AWS_S3_ACCESS_KEY_ID}
+  secret-key: ${AWS_S3_SECRET_ACCESS_KEY}
+  bucket: ${AWS_S3_BUCKET}
+
+postgres:
+  database-name: ${POSTGRES_DB}
+  username: ${POSTGRES_USER}
+  root-url: jdbc:postgresql://${POSTGRES_HOSTNAME}:${POSTGRES_PORT}/postgres
+  connection-string: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOSTNAME}:${POSTGRES_PORT}/${POSTGRES_DB}
+  exclude-tables: ${EXCLUDE_TABLES:""}
+
+spring:
+  datasource:
+    type: org.springframework.jdbc.datasource.SimpleDriverDataSource
+    url: jdbc:postgresql://${POSTGRES_HOSTNAME}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true

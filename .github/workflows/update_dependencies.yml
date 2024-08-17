@@ -1,0 +1,24 @@
+name: Update dependencies
+
+on:
+  schedule:
+    - cron: '7 0 * * 1'
+
+concurrency:
+  group: any
+  cancel-in-progress: true
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write # Requires also "Allow GitHub Actions to create and approve pull requests" to be enabled in the repository settings
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+      - env:
+          LOG_LEVEL: debug
+        run: npx renovate --token ${{ secrets.GITHUB_TOKEN }} --platform github --autodiscover

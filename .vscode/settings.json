@@ -1,0 +1,29 @@
+{
+    "maven.terminal.favorites": [
+        {
+            "command": "spring-boot:run",
+            "debug": false,
+        }
+    ],
+    "java.format.enabled": true,
+    "[java]": {
+        "editor.tabSize": 2
+    },
+    "java.format.settings.url": ".vscode/java-formatter.xml",
+    "java.compile.nullAnalysis.mode": "disabled",
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "db",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "local",
+            "database": "postgres-backup-tool",
+            "username": "postgres",
+            "password": "postgres"
+        }
+    ],
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.autoImportCompletions": true,
+    "java.configuration.updateBuildConfiguration": "interactive"
+}

@@ -1,0 +1,18 @@
+@let time = lastBackupTime();
+<header bt>
+  <nav>
+    <a href="/" bt-logo>Postgres Backup Tool</a>
+    <div>
+      @if (time) {
+      <h3 bt>
+        Last backup <span bt-badge>{{ time | relativeTime }}</span>
+      </h3>
+      }
+    </div>
+  </nav>
+</header>
+<main bt>
+  <app-tables></app-tables>
+  <app-backups></app-backups>
+  <section bt-notifications></section>
+</main>
