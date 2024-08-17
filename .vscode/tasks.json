@@ -1,0 +1,105 @@
+{
+  "version": "2.0.0",
+  "osx": {
+    "options": {
+      "shell": {
+        "executable": "${env:SHELL}",
+        "args": ["--login", "--interactive", "-c"]
+      }
+    }
+  },
+  "tasks": [
+    {
+      "type": "shell",
+      "command": "bash",
+      "label": "Install dependencies",
+      "args": ["scripts/install_dependencies.sh"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Build client",
+      "command": "npm run build",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/client"
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Build server",
+      "command": "mvn clean install -DskipTests",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/server"
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Start client",
+      "command": "npm start",
+      "options": {
+        "cwd": "${workspaceFolder}/client"
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Start server",
+      "command": "mvn spring-boot:run",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/server"
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Test e2e",
+      "command": "mvn test",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/server"
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Compose up",
+      "command": "node docker-compose.js | docker compose --file - up --build --force-recreate --wait --remove-orphans --pull always",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Compose down",
+      "command": "node docker-compose.js | docker compose --file - down",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "command": "ansible-vault encrypt vars/vault.yaml --vault-password-file .ansible/vault_key",
+      "isBackground": true,
+      "label": "Encrypt vault",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "command": "ansible-vault decrypt vars/vault.yaml --vault-password-file .ansible/vault_key",
+      "isBackground": true,
+      "label": "Decrypt vault",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "command": "ansible-vault view vars/vault.yaml --vault-password-file .ansible/vault_key",
+      "isBackground": true,
+      "label": "view vault",
+      "problemMatcher": []
+    }
+  ]
+}
