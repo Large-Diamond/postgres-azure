@@ -17,7 +17,15 @@ const config = {
         POSTGRES_DB,
         POSTGRES_PASSWORD,
         POSTGRES_USER,
-        BLOBSTORAGE_ENDPOINT_URL: "http://blobstorage:10000",
+        BLOBSTORAGE_CONNECTION_STRING: Object.entries({
+          DefaultEndpointsProtocol: "http",
+          AccountName: "devstoreaccount1",
+          AccountKey:
+            "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==",
+          BlobEndpoint: "http://blobstorage:10000/devstoreaccount1",
+        })
+          .map(([key, value]) => `${key}=${value}`)
+          .join(";"),
         BLOBSTORAGE_CONTAINER: "test-bucket",
         EXCLUDE_TABLES: "passwords,secrets",
       },
