@@ -1,35 +1,42 @@
 package io.github.mucsi96.postgresbackuptool.configuration;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.S3Configuration;
+import com.azure.core.credential.TokenCredential;
+import com.azure.identity.DefaultAzureCredentialBuilder;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 
 @Configuration
 public class BackupConfiguration {
 
+  @Profile("!test")
   @Bean
-  public S3Client s3Client(@Value("${s3.endpoint}") String endpointUrl,
-      @Value("${s3.access-key}") String accessKeyValue,
-      @Value("${s3.secret-key}") String secretKeyValue,
-      @Value("${s3.region}") String region)
-      throws URISyntaxException {
-    return S3Client.builder().region(Region.of(region))
-        .credentialsProvider(StaticCredentialsProvider
-            .create(AwsBasicCredentials.create(accessKeyValue, secretKeyValue)))
-        .serviceConfiguration(
-            S3Configuration.builder().pathStyleAccessEnabled(true).build())
-        .endpointOverride(URI.create(endpointUrl)).build();
+  public BlobServiceClient blobServiceClient(
+      @Value("${blobstorage.endpoint}") String endpointUrl) {
+    TokenCredential tokenCredential = new DefaultAzureCredentialBuilder()
+        .build();
+
+    BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+        .endpoint(endpointUrl).credential(tokenCredential).buildClient();
+
+    return blobServiceClient;
+  }
+
+  @Profile("test")
+  @Bean
+  public BlobServiceClient mockBlobServiceClient(
+      @Value("${blobstorage.connectionString}") String connectionString) {
+    BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+        .connectionString(connectionString).buildClient();
+
+    return blobServiceClient;
   }
 
   @Bean

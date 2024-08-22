@@ -1,28 +1,13 @@
 {"properties": [
   {
-    "name": "s3.endpoint",
+    "name": "blobstorage.endpoint",
     "type": "java.lang.String",
-    "description": "S3 endpoint url"
+    "description": "Azure blobstorage endpoint url"
   },
   {
-    "name": "s3.bucket",
+    "name": "blobstorage.container",
     "type": "java.lang.String",
-    "description": "S3 bucket name"
-  },
-  {
-    "name": "s3.access-key",
-    "type": "java.lang.String",
-    "description": "S3 accessKey"
-  },
-  {
-    "name": "s3.secret-key",
-    "type": "java.lang.String",
-    "description": "S3 secretKey"
-  },
-  {
-    "name": "s3.region",
-    "type": "java.lang.String",
-    "description": "S3 AWS region"
+    "description": "Azure blobstorage container name"
   },
   {
     "name": "postgres.connection-string",
