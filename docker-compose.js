@@ -17,17 +17,15 @@ const config = {
         POSTGRES_DB,
         POSTGRES_PASSWORD,
         POSTGRES_USER,
-        AWS_S3_ENDPOINT_URL: "http://s3mock:9090",
-        AWS_S3_ACCESS_KEY_ID: "foo",
-        AWS_S3_SECRET_ACCESS_KEY: "bar",
-        AWS_S3_BUCKET: "test-bucket",
-        AWS_S3_REGION: "test-region",
+        BLOBSTORAGE_ENDPOINT_URL: "http://blobstorage:10000",
+        BLOBSTORAGE_CONTAINER: "test-bucket",
         EXCLUDE_TABLES: "passwords,secrets",
       },
       ports: ["8080:8080"],
     },
-    s3mock: {
-      image: "adobe/s3mock:3.1.0",
+    blobstorage: {
+      image: "mcr.microsoft.com/azure-storage/azurite",
+      command: "azurite-blob --blobHost 0.0.0.0",
     },
     db: {
       image: "postgres:16.2-bullseye",

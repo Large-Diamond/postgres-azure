@@ -7,8 +7,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,50 +16,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.Network;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.lifecycle.Startables;
 
-import com.adobe.testing.s3mock.testcontainers.S3MockContainer;
+import com.azure.core.util.BinaryData;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
 import com.microsoft.playwright.Page;
-
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
-import software.amazon.awssdk.services.s3.model.Delete;
-import software.amazon.awssdk.services.s3.model.DeleteBucketRequest;
-import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
-import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
-import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
-import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.waiters.S3Waiter;
-
-class DevContainerNetwork implements Network {
-
-  @Override
-  public String getId() {
-    return System.getenv("DOCKER_NETWORK");
-  }
-
-  @Override
-  public void close() {
-  }
-
-  @Override
-  public Statement apply(Statement base, Description description) {
-    return null;
-  }
-
-};
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ExtendWith(ScreenshotOnFailure.class)
 public class BaseIntegrationTest {
 
-  static S3MockContainer s3Mock;
+  static AzuriteContainer blobstorageMock;
 
   static PostgreSQLContainer<?> dbMock;
 
@@ -69,7 +37,7 @@ public class BaseIntegrationTest {
   Page page;
 
   @Autowired
-  S3Client s3Client;
+  BlobServiceClient blobServiceClient;
 
   @Autowired
   JdbcTemplate jdbcTemplate;
@@ -77,32 +45,26 @@ public class BaseIntegrationTest {
   @Autowired
   DateTimeFormatter dateTimeFormatter;
 
-  @Value("${s3.bucket}")
-  String bucketName;
+  @Value("${blobstorage.container}")
+  String containerName;
 
   @LocalServerPort
   private int port;
 
   @BeforeAll
   public static void setUp() {
-    if (s3Mock != null) {
+    if (blobstorageMock != null) {
       return;
     }
 
-    s3Mock = new S3MockContainer("2.13.0");
+    blobstorageMock = new AzuriteContainer();
     dbMock = new PostgreSQLContainer<>("postgres:16.2-bullseye");
 
-    if (System.getenv("DOCKER_NETWORK") != null) {
-      Network network = new DevContainerNetwork();
-      s3Mock.withNetwork(network);
-      dbMock.withNetwork(network);
-    }
-
-    Startables.deepStart(List.of(dbMock, s3Mock)).join();
+    Startables.deepStart(List.of(dbMock, blobstorageMock)).join();
   }
 
   public void setupMocks(Runnable prepare) {
-    cleanupS3();
+    cleanupBlobstorage();
     cleanupDB();
     initDB();
     prepare.run();
@@ -116,11 +78,9 @@ public class BaseIntegrationTest {
 
   @DynamicPropertySource
   public static void overrideProps(DynamicPropertyRegistry registry) {
-    registry.add("s3.endpoint", () -> s3Mock.getHttpEndpoint());
-    registry.add("s3.access-key", () -> "foo");
-    registry.add("s3.secret-key", () -> "bar");
-    registry.add("s3.bucket", () -> "test-bucket");
-    registry.add("s3.region", () -> "test-region");
+    registry.add("blobstorage.connectionString",
+        () -> blobstorageMock.getConnectionString());
+    registry.add("blobstorage.container", () -> "test-bucket");
     registry.add("postgres.database-name", dbMock::getDatabaseName);
     registry.add("postgres.username", dbMock::getUsername);
     registry.add("postgres.root-url",
@@ -175,20 +135,9 @@ public class BaseIntegrationTest {
         .setPath(Paths.get("screenshots/" + name + ".png")));
   }
 
-  private void cleanupS3() {
-    try {
-      // https://docs.aws.amazon.com/AmazonS3/latest/userguide/example_s3_ListObjects_section.html
-      List<ObjectIdentifier> objects = s3Client
-          .listObjectsV2(
-              ListObjectsV2Request.builder().bucket(bucketName).build())
-          .contents().stream()
-          .map((object) -> ObjectIdentifier.builder().key(object.key()).build())
-          .toList();
-      s3Client.deleteObjects(DeleteObjectsRequest.builder().bucket(bucketName)
-          .delete(Delete.builder().objects(objects).build()).build());
-      s3Client.deleteBucket(
-          DeleteBucketRequest.builder().bucket(bucketName).build());
-    } catch (NoSuchBucketException e) {
+  private void cleanupBlobstorage() {
+    if (blobServiceClient.getBlobContainerClient(containerName).exists()) {
+      blobServiceClient.deleteBlobContainer(containerName);
     }
   }
 
@@ -197,19 +146,15 @@ public class BaseIntegrationTest {
     String timeString = dateTimeFormatter.format(time);
     String filename = String.format("%s.%s.%s.pgdump", timeString, rowCount,
         retentionPeriod);
-    try {
-      s3Client
-          .headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
-    } catch (NoSuchBucketException e) {
-      s3Client.createBucket(
-          CreateBucketRequest.builder().bucket(bucketName).build());
-      S3Waiter s3Waiter = s3Client.waiter();
-      s3Waiter.waitUntilBucketExists(
-          HeadBucketRequest.builder().bucket(bucketName).build());
+
+    BlobContainerClient blobContainerClient = blobServiceClient
+        .getBlobContainerClient(containerName);
+
+    if (!blobContainerClient.exists()) {
+      blobContainerClient.create();
     }
 
-    s3Client.putObject(
-        PutObjectRequest.builder().bucket(bucketName).key(filename).build(),
-        RequestBody.empty());
+    blobContainerClient.getBlobClient(filename)
+        .upload(BinaryData.fromString(""));
   }
 }

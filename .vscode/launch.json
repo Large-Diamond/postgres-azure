@@ -7,7 +7,8 @@
             "cwd": "${workspaceFolder}/server",
             "mainClass": "io.github.mucsi96.postgresbackuptool.App",
             "projectName": "postgres-azure-backup",
-            "args": ""
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
