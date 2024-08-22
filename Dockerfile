@@ -24,7 +24,7 @@ VOLUME /tmp
 
 ARG DEPENDENCY=/workspace/server/target/dependency
 
-RUN apk add postgresql15-client
+RUN apk add postgresql16-client
 
 COPY --from=build-server ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build-server ${DEPENDENCY}/META-INF /app/META-INF

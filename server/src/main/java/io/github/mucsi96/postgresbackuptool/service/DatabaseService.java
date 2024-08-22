@@ -88,7 +88,11 @@ public class DatabaseService {
 
     System.out.println("Creating dump: " + String.join(", ", commands));
 
-    new ProcessBuilder(commands).inheritIO().start().waitFor();
+    int status = new ProcessBuilder(commands).inheritIO().start().waitFor();
+
+    if (status != 0) {
+      throw new RuntimeException("Unable to create dump. pg_dump failed");
+    }
 
     File file = new File(filename);
 
