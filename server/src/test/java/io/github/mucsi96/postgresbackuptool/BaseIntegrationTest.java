@@ -1,18 +1,23 @@
 package io.github.mucsi96.postgresbackuptool;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -22,7 +27,10 @@ import org.testcontainers.lifecycle.Startables;
 import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.playwright.Page;
+
+import io.github.mucsi96.postgresbackuptool.configuration.DatabaseConfiguration;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -39,14 +47,10 @@ public class BaseIntegrationTest {
   @Autowired
   BlobServiceClient blobServiceClient;
 
-  @Autowired
   JdbcTemplate jdbcTemplate;
 
   @Autowired
   DateTimeFormatter dateTimeFormatter;
-
-  @Value("${blobstorage.container}")
-  String containerName;
 
   @LocalServerPort
   private int port;
@@ -64,6 +68,9 @@ public class BaseIntegrationTest {
   }
 
   public void setupMocks(Runnable prepare) {
+    DataSource dataSource = new DriverManagerDataSource(dbMock.getJdbcUrl(),
+        dbMock.getUsername(), dbMock.getPassword());
+    jdbcTemplate = new JdbcTemplate(dataSource);
     cleanupBlobstorage();
     cleanupDB();
     initDB();
@@ -77,25 +84,25 @@ public class BaseIntegrationTest {
   }
 
   @DynamicPropertySource
-  public static void overrideProps(DynamicPropertyRegistry registry) {
+  public static void overrideProps(DynamicPropertyRegistry registry)
+      throws IOException {
     registry.add("blobstorage.connectionString",
         () -> blobstorageMock.getConnectionString());
-    registry.add("blobstorage.container", () -> "test-bucket");
-    registry.add("postgres.database-name", dbMock::getDatabaseName);
-    registry.add("postgres.username", dbMock::getUsername);
-    registry.add("postgres.root-url",
-        () -> String.format("jdbc:postgresql://%s:%s/postgres",
-            dbMock.getHost(), dbMock.getFirstMappedPort()));
-    registry.add("postgres.connection-string",
-        () -> String.format("postgresql://%s:%s@%s:%s/%s", dbMock.getUsername(),
-            dbMock.getPassword(), dbMock.getHost(), dbMock.getFirstMappedPort(),
-            dbMock.getDatabaseName()));
-    registry.add("postgres.exclude-tables", () -> "passwords, secrets");
-    registry.add("spring.datasource.type",
-        () -> "org.springframework.jdbc.datasource.SimpleDriverDataSource");
-    registry.add("spring.datasource.url", dbMock::getJdbcUrl);
-    registry.add("spring.datasource.username", dbMock::getUsername);
-    registry.add("spring.datasource.password", dbMock::getPassword);
+
+    File databasesConfigFile = File.createTempFile("test-dbs", ".json");
+
+    try (FileWriter writer = new FileWriter(databasesConfigFile)) {
+      DatabaseConfiguration config = DatabaseConfiguration.builder()
+          .name(dbMock.getDatabaseName()).database(dbMock.getDatabaseName())
+          .host(dbMock.getHost()).port(dbMock.getFirstMappedPort())
+          .username(dbMock.getUsername()).password(dbMock.getPassword())
+          .excludeTables(List.of("passwords", "secrets")).build();
+      writer.write(new ObjectMapper().writeValueAsString(List.of(config)));
+    }
+
+    databasesConfigFile.deleteOnExit();
+    registry.add("databasesConfigPath",
+        () -> databasesConfigFile.getAbsolutePath());
   }
 
   public void cleanupDB() {
@@ -136,19 +143,19 @@ public class BaseIntegrationTest {
   }
 
   private void cleanupBlobstorage() {
-    if (blobServiceClient.getBlobContainerClient(containerName).exists()) {
-      blobServiceClient.deleteBlobContainer(containerName);
-    }
+    blobServiceClient.listBlobContainers().stream()
+        .forEach(container -> blobServiceClient
+            .deleteBlobContainer(container.getName()));
   }
 
-  public void createMockBackup(Instant time, int rowCount,
+  public void createMockBackup(String databaseName, Instant time, int rowCount,
       int retentionPeriod) {
     String timeString = dateTimeFormatter.format(time);
     String filename = String.format("%s.%s.%s.pgdump", timeString, rowCount,
         retentionPeriod);
 
     BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(containerName);
+        .getBlobContainerClient(databaseName);
 
     if (!blobContainerClient.exists()) {
       blobContainerClient.create();

@@ -31,42 +31,43 @@ public class BackupController {
   private final BackupService backupService;
   private final DatabaseService databaseService;
 
-  @GetMapping("/backups")
+  @GetMapping("/database/{database_name}/backups")
   @ResponseBody
-  List<Backup> list() {
-    return backupService.getBackups();
+  List<Backup> list(@PathVariable("database_name") String databaseName) {
+    return backupService.getBackups(databaseName);
   }
 
-  @PostMapping("/backup")
+  @PostMapping("/database/{database_name}/backup")
   @ResponseBody
-  void create(
+  void create(@PathVariable("database_name") String databaseName,
       @RequestParam("retention_period") @Min(1) @Max(356) int retentionPeriod)
       throws IOException, InterruptedException {
-    File dumpFile = databaseService.createDump(retentionPeriod);
-    backupService.createBackup(dumpFile);
+    File dumpFile = databaseService.createDump(databaseName, retentionPeriod);
+    backupService.createBackup(databaseName, dumpFile);
 
     dumpFile.delete();
   }
 
-  @PostMapping("/restore/{key}")
+  @PostMapping("/database/{database_name}/restore/{key}")
   @ResponseBody
-  void restore(@PathVariable String key)
-      throws IOException, InterruptedException {
-    File dumpFile = backupService.downloadBackup(key);
-    databaseService.restoreDump(dumpFile);
+  void restore(@PathVariable("database_name") String databaseName,
+      @PathVariable String key) throws IOException, InterruptedException {
+    File dumpFile = backupService.downloadBackup(databaseName, key);
+    databaseService.restoreDump(databaseName, dumpFile);
 
     dumpFile.delete();
   }
 
-  @PostMapping("/cleanup")
+  @PostMapping("/database/{database_name}/cleanup")
   @ResponseBody
-  void cleanup() {
-    backupService.cleanup();
+  void cleanup(@PathVariable("database_name") String databaseName) {
+    backupService.cleanup(databaseName);
   }
 
-  @GetMapping("/last-backup-time")
+  @GetMapping("/database/{database_name}/last-backup-time")
   @ResponseBody
-  Optional<Instant> lastBackupTime() {
-    return backupService.getLastBackupTime();
+  Optional<Instant> lastBackupTime(
+      @PathVariable("database_name") String databaseName) {
+    return backupService.getLastBackupTime(databaseName);
   }
 }
