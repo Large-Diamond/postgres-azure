@@ -1,21 +1,6 @@
 blobstorage:
   endpoint: ${BLOBSTORAGE_ENDPOINT_URL:''}
   connectionString: ${BLOBSTORAGE_CONNECTION_STRING:''}
-  container: ${BLOBSTORAGE_CONTAINER}
-
-postgres:
-  database-name: ${POSTGRES_DB}
-  username: ${POSTGRES_USER}
-  root-url: jdbc:postgresql://${POSTGRES_HOSTNAME}:${POSTGRES_PORT}/postgres
-  connection-string: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOSTNAME}:${POSTGRES_PORT}/${POSTGRES_DB}
-  exclude-tables: ${EXCLUDE_TABLES:""}
-
-spring:
-  datasource:
-    type: org.springframework.jdbc.datasource.SimpleDriverDataSource
-    url: jdbc:postgresql://${POSTGRES_HOSTNAME}:${POSTGRES_PORT}/${POSTGRES_DB}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
 
 management:
   endpoints:

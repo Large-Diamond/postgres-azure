@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.azure.storage.blob.BlobContainerClient;
@@ -21,20 +20,17 @@ import io.github.mucsi96.postgresbackuptool.model.Backup;
 @Service
 public class BackupService {
   private final BlobServiceClient blobServiceClient;
-  private final String containerName;
   private final DateTimeFormatter dateTimeFormatter;
 
   public BackupService(BlobServiceClient blobServiceClient,
-      @Value("${blobstorage.container}") String containerName,
       DateTimeFormatter dateTimeFormatter) {
     this.blobServiceClient = blobServiceClient;
-    this.containerName = containerName;
     this.dateTimeFormatter = dateTimeFormatter;
   }
 
-  public List<Backup> getBackups() {
+  public List<Backup> getBackups(String databaseName) {
     BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(containerName);
+        .getBlobContainerClient(databaseName);
 
     if (!blobContainerClient.exists()) {
       return Collections.emptyList();
@@ -51,9 +47,9 @@ public class BackupService {
         .toList();
   }
 
-  public void createBackup(File dumpFile) {
+  public void createBackup(String databaseName, File dumpFile) {
     BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(containerName);
+        .getBlobContainerClient(databaseName);
 
     if (!blobContainerClient.exists()) {
       blobContainerClient.create();
@@ -63,9 +59,9 @@ public class BackupService {
         .uploadFromFile(dumpFile.getAbsolutePath());
   }
 
-  public File downloadBackup(String key) throws IOException {
+  public File downloadBackup(String databaseName, String key) throws IOException {
     BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(containerName);
+        .getBlobContainerClient(databaseName);
 
     if (!blobContainerClient.exists()) {
       throw new IOException("Container does not exist");
@@ -76,9 +72,9 @@ public class BackupService {
     return new File(key);
   }
 
-  public void cleanup() {
+  public void cleanup(String databaseName) {
     BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(containerName);
+        .getBlobContainerClient(databaseName);
 
     if (!blobContainerClient.exists()) {
       return;
@@ -89,8 +85,8 @@ public class BackupService {
             .getBlobClient(blobItem.getName()).delete());
   }
 
-  public Optional<Instant> getLastBackupTime() {
-    return getBackups().stream().findFirst()
+  public Optional<Instant> getLastBackupTime(String databaseName) {
+    return getBackups(databaseName).stream().findFirst()
         .map(backup -> backup.getLastModified());
   }
 

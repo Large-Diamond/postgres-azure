@@ -26,7 +26,6 @@ const config = {
         })
           .map(([key, value]) => `${key}=${value}`)
           .join(";"),
-        BLOBSTORAGE_CONTAINER: "test-bucket",
         EXCLUDE_TABLES: "passwords,secrets",
       },
       ports: ["8080:8080"],

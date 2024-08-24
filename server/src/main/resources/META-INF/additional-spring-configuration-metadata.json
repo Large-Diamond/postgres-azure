@@ -1,37 +1,14 @@
-{"properties": [
-  {
-    "name": "blobstorage.endpoint",
-    "type": "java.lang.String",
-    "description": "Azure blobstorage endpoint url"
-  },
-  {
-    "name": "blobstorage.container",
-    "type": "java.lang.String",
-    "description": "Azure blobstorage container name"
-  },
-  {
-    "name": "postgres.connection-string",
-    "type": "java.lang.String",
-    "description": "Connection string for pg_dump"
-  },
-  {
-    "name": "postgres.database-name",
-    "type": "java.lang.String",
-    "description": "Postgress database name"
-  },
-  {
-    "name": "postgres.username",
-    "type": "java.lang.String",
-    "description": "Postgress user name"
-  },
-  {
-    "name": "postgres.root-url",
-    "type": "java.lang.String",
-    "description": "Root Postgres url"
-  },
-  {
-    "name": "postgres.exclude-tables",
-    "type": "java.lang.String",
-    "description": "Comma-separated list of tables to exclude during backup"
-  }
-]}
+{
+  "properties": [
+    {
+      "name": "blobstorage.endpoint",
+      "type": "java.lang.String",
+      "description": "Azure blobstorage endpoint url"
+    },
+    {
+      "name": "databasesConfigPath",
+      "type": "java.lang.String",
+      "description": "Path to the databases configuration file"
+    }
+  ]
+}
