@@ -1,11 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import {
-  Observable,
-  shareReplay,
-  tap
-} from 'rxjs';
+import { Observable, shareReplay, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { handleError } from '../utils/handleError';
 
@@ -14,6 +10,7 @@ import { handleError } from '../utils/handleError';
 })
 export class DatabasesService {
   $databases: Observable<string[]>;
+  selectedDatabase = signal<string | undefined>(undefined);
   loading = signal(true);
 
   constructor(private readonly http: HttpClient) {
@@ -24,6 +21,14 @@ export class DatabasesService {
         handleError('Could not fetch databases'),
         shareReplay(1)
       );
+  }
+
+  getSelectedDatabase() {
+    return this.selectedDatabase;
+  }
+
+  setDatabaseName(name: string) {
+    this.selectedDatabase.set(name);
   }
 
   getDatabases() {

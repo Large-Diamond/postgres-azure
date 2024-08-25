@@ -2,12 +2,26 @@
 <header bt>
   <nav>
     <a href="/" bt-logo>Postgres Backup Tool</a>
-    <div>
+    <div class="selected-database">
+      @if (databaseName()) {
+      <button bt bt-dropdown popovertarget="dropdown-menu-popover">
+        {{ databaseName() }}
+        <svg></svg>
+      </button>
+      <div popover bt id="dropdown-menu-popover">
+        <ul bt-dropdown-menu>
+          @for(database of databases(); track database) {
+          <li>
+            <a routerLink="/database/{{ database }}">{{ database }}</a>
+          </li>
+          }
+        </ul>
+      </div>
       @if (time) {
       <h3 bt>
         Last backup <span bt-badge>{{ time | relativeTime }}</span>
       </h3>
-      }
+      } }
     </div>
   </nav>
 </header>
