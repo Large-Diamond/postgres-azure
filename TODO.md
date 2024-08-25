@@ -1,1 +1,0 @@
-- add more details to main screen including record, tables, backups count and last backup time

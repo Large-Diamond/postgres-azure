@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
 import { BackupsService } from './backups/backups.service';
 import { RelativeTimePipe } from './utils/relativeTime.pipe';
 import { DatabasesService } from './databases/databases.service';
+import { Database } from '../types';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,7 @@ import { DatabasesService } from './databases/databases.service';
 })
 export class AppComponent {
   databaseName = signal<string | undefined>(undefined);
-  databases: Signal<string[] | undefined>;
+  databases: Signal<Database[] | undefined>;
   lastBackupTime: Signal<Date | undefined>;
 
   constructor(

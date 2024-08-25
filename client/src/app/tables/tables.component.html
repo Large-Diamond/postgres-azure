@@ -13,14 +13,14 @@
     <thead>
       <tr>
         <th>Name</th>
-        <th>Records</th>
+        <th bt-center-align>Records</th>
       </tr>
     </thead>
     <tbody>
       @for (table of tables(); track table.name) {
       <tr>
-        <td highlighted>{{ table.name }}</td>
-        <td>{{ table.rowCount }}</td>
+        <td bt-highlighted bt-no-wrap>{{ table.name }}</td>
+        <td bt-center-align>{{ table.rowCount }}</td>
       </tr>
       }
     </tbody>

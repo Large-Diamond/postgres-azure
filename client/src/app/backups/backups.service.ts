@@ -71,18 +71,6 @@ export class BackupsService {
                 map(
                   (lastBackupTime) => lastBackupTime && new Date(lastBackupTime)
                 ),
-                tap((lastBackupTime) => {
-                  if (
-                    !lastBackupTime ||
-                    lastBackupTime.getTime() +
-                      1 /*d*/ * 24 /*h*/ * 60 /*m*/ * 60 /*s*/ * 1000 /*ms*/ <
-                      Date.now()
-                  ) {
-                    document.dispatchEvent(
-                      new ErrorNotificationEvent('No backup since one day')
-                    );
-                  }
-                }),
                 handleError('Unable to fetch last backup time'),
                 shareReplay(1)
               )

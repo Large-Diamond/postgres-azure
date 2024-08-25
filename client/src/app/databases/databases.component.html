@@ -10,13 +10,25 @@
     <tr>
       <th></th>
       <th>Name</th>
+      <th bt-center-align>Tables</th>
+      <th bt-center-align>Records</th>
+      <th bt-center-align>Backups</th>
+      <th bt-right-align>Last backup</th>
     </tr>
   </thead>
   <tbody>
-    @for (database of databases(); track database) {
+    @for (database of databases(); track database.name) {
     <tr (click)="selectDatabase(database)">
       <td bt-row-selector></td>
-      <td no-wrap>{{ database }}</td>
+      <td bt-no-wrap bt-now-wrap bt-highlighted>{{ database.name }}</td>
+      <td bt-no-wrap bt-center-align>{{ database.tablesCount }}</td>
+      <td bt-no-wrap bt-center-align>{{ database.totalRowCount }}</td>
+      <td bt-no-wrap bt-center-align>{{ database.backupsCount }}</td>
+      @if (database.lastBackupTime) {
+      <td bt-no-wrap bt-right-align>{{ database.lastBackupTime | relativeTime }}</td>
+      } @else {
+      <td bt-no-wrap></td>
+      }
     </tr>
     }
   </tbody>

@@ -10,9 +10,9 @@
       </button>
       <div popover bt id="dropdown-menu-popover">
         <ul bt-dropdown-menu>
-          @for(database of databases(); track database) {
+          @for(database of databases(); track database.name) {
           <li>
-            <a routerLink="/database/{{ database }}">{{ database }}</a>
+            <a routerLink="/database/{{ database.name }}">{{ database.name }}</a>
           </li>
           }
         </ul>
