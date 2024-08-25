@@ -1,0 +1,24 @@
+@if (loading()) {
+<div role="progressbar" bt></div>
+} @else {
+<h2 bt>
+  Databases <span bt-badge>{{ databases()?.length }}</span>
+</h2>
+@if (databases()?.length) {
+<table bt id="backups">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (database of databases(); track database) {
+    <tr (click)="selectDatabase(database)">
+      <td bt-row-selector></td>
+      <td no-wrap>{{ database }}</td>
+    </tr>
+    }
+  </tbody>
+</table>
+} }
