@@ -15,7 +15,7 @@ const databases: Database[] = [
     tablesCount: 3,
     totalRowCount: 12,
     backupsCount: 3,
-    lastBackupTime: new Date(new Date().getTime() - 24 * 60 * 60 * 1000 * 3),
+    lastBackupTime: new Date(new Date().getTime() - 24 * 60 * 60 * 1000 * 0.5),
   },
 ];
 

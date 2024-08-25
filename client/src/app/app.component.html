@@ -12,14 +12,22 @@
         <ul bt-dropdown-menu>
           @for(database of databases(); track database.name) {
           <li>
-            <a routerLink="/database/{{ database.name }}">{{ database.name }}</a>
+            <a routerLink="/database/{{ database.name }}">{{
+              database.name
+            }}</a>
           </li>
           }
         </ul>
       </div>
       @if (time) {
       <h3 bt>
-        Last backup <span bt-badge>{{ time | relativeTime }}</span>
+        Last backup
+        <span
+          bt-badge
+          [attr.bt-green]="!olderThenOneDay(time) ? '' : null"
+          [attr.bt-red]="olderThenOneDay(time) ? '' : null"
+          >{{ time | relativeTime }}</span
+        >
       </h3>
       } }
     </div>

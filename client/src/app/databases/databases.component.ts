@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { DatabasesService } from './databases.service';
 import { Database } from '../../types';
 import { RelativeTimePipe } from '../utils/relativeTime.pipe';
+import { olderThenOneDay } from '../utils/dateUtils';
 
 @Component({
   selector: 'app-databases',
@@ -14,6 +15,7 @@ import { RelativeTimePipe } from '../utils/relativeTime.pipe';
 export class DatabasesComponent {
   databases: Signal<Database[] | undefined>;
   loading: Signal<boolean>;
+  olderThenOneDay = olderThenOneDay;
 
   constructor(
     private readonly databasesService: DatabasesService,
@@ -26,4 +28,5 @@ export class DatabasesComponent {
   selectDatabase(database: Database) {
     this.router.navigate(['/database', database.name]);
   }
+
 }
