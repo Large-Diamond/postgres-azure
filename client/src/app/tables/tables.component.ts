@@ -1,9 +1,8 @@
-import { Component, computed, input, signal, Signal } from '@angular/core';
+import { Component, computed, signal, Signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Table } from '../../types';
 import { BackupsService } from '../backups/backups.service';
 import { TablesService } from './tables.service';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-tables',
@@ -20,15 +19,9 @@ export class TablesComponent {
   loading: Signal<boolean>;
 
   constructor(
-    private readonly route: ActivatedRoute,
     private readonly tableService: TablesService,
     private readonly backupsService: BackupsService
   ) {
-    this.route.params.subscribe((params) => {
-      if (params['name']) {
-        this.tableService.setDatabaseName(params['name']);
-      }
-    });
     this.tables = this.tableService.getTables();
     this.totalRowCount = this.tableService.getTotalRowCount();
     this.loading = this.tableService.isLoading();

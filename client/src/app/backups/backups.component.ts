@@ -1,11 +1,10 @@
 import { Component, signal, Signal, WritableSignal } from '@angular/core';
 import { Backup } from '../../types';
-import { BackupsService } from './backups.service';
-import { SizePipe } from '../utils/size.pipe';
-import { RetentionPipe } from '../utils/retention.pipe';
-import { RelativeTimePipe } from '../utils/relativeTime.pipe';
 import { TablesService } from '../tables/tables.service';
-import { ActivatedRoute } from '@angular/router';
+import { RelativeTimePipe } from '../utils/relativeTime.pipe';
+import { RetentionPipe } from '../utils/retention.pipe';
+import { SizePipe } from '../utils/size.pipe';
+import { BackupsService } from './backups.service';
 
 @Component({
   selector: 'app-backups',
@@ -21,15 +20,9 @@ export class BackupsComponent {
   selectedBackup: WritableSignal<string | undefined> = signal(undefined);
 
   constructor(
-    private readonly route: ActivatedRoute,
     private readonly backupsService: BackupsService,
     private readonly tableService: TablesService
   ) {
-    this.route.params.subscribe((params) => {
-      if (params['name']) {
-        this.backupsService.setDatabaseName(params['name']);
-      }
-    });
     this.backups = this.backupsService.getBackups();
     this.processing = this.backupsService.isProcessing();
     this.loading = this.backupsService.isLoading();
