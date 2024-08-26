@@ -9,9 +9,9 @@ import {
   map,
   Observable,
   shareReplay,
-  Subject,
   switchMap,
-  tap,
+  take,
+  tap
 } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Table } from '../../types';
@@ -21,14 +21,14 @@ import { handleError } from '../utils/handleError';
   providedIn: 'root',
 })
 export class TablesService {
-  $databaseName = new BehaviorSubject<string | undefined>(undefined);
-  $tables: Observable<{
+  private readonly $databaseName = new BehaviorSubject<string | undefined>(undefined);
+  private $tables: Observable<{
     tables: Table[];
     totalRowCount: number;
   }>;
-  $tableMutations = new BehaviorSubject<void>(undefined);
-  loading = signal(true);
-  processing = signal(false);
+  private readonly $tableMutations = new BehaviorSubject<void>(undefined);
+  private readonly loading = signal(true);
+  private readonly processing = signal(false);
 
   constructor(private readonly http: HttpClient) {
     this.$tables = this.$databaseName.pipe(
@@ -92,12 +92,17 @@ export class TablesService {
               }),
               finalize(() => this.processing.set(false))
             )
-        )
+        ),
+        take(1)
       )
       .subscribe();
   }
 
   isProcessing() {
     return this.processing;
+  }
+
+  getTableMutations() {
+    return this.$tableMutations
   }
 }
