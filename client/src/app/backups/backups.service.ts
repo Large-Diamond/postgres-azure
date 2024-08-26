@@ -2,8 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
-  ErrorNotificationEvent,
-  SuccessNotificationEvent,
+  SuccessNotificationEvent
 } from '@mucsi96/ui-elements';
 import {
   BehaviorSubject,
@@ -12,9 +11,9 @@ import {
   map,
   Observable,
   shareReplay,
-  Subject,
   switchMap,
-  tap,
+  take,
+  tap
 } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Backup } from '../../types';
@@ -24,12 +23,12 @@ import { handleError } from '../utils/handleError';
   providedIn: 'root',
 })
 export class BackupsService {
-  $databaseName = new BehaviorSubject<string | undefined>(undefined);
-  $lastBackupTime: Observable<Date | undefined>;
-  $backups: Observable<Backup[]>;
-  $backupMutations = new BehaviorSubject<void>(undefined);
-  loading = signal(true);
-  processing = signal(false);
+  private readonly $databaseName = new BehaviorSubject<string | undefined>(undefined);
+  private $lastBackupTime: Observable<Date | undefined>;
+  private $backups: Observable<Backup[]>;
+  private readonly $backupMutations = new BehaviorSubject<void>(undefined);
+  private readonly loading = signal(true);
+  private readonly processing = signal(false);
 
   constructor(private readonly http: HttpClient) {
     this.$backups = this.$databaseName.pipe(
@@ -117,7 +116,8 @@ export class BackupsService {
               }),
               finalize(() => this.processing.set(false))
             )
-        )
+        ),
+        take(1)
       )
       .subscribe();
   }
@@ -142,12 +142,17 @@ export class BackupsService {
               }),
               finalize(() => this.processing.set(false))
             )
-        )
+        ),
+        take(1)
       )
       .subscribe();
   }
 
   isProcessing() {
     return this.processing;
+  }
+
+  getBackupMutations() {
+    return this.$backupMutations;
   }
 }
