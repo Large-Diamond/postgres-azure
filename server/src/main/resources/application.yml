@@ -2,6 +2,8 @@ blobstorage:
   endpoint: ${BLOBSTORAGE_ENDPOINT_URL:''}
   connectionString: ${BLOBSTORAGE_CONNECTION_STRING:''}
 
+databasesConfigPath: ${DATABASES_CONFIG_PATH}
+
 management:
   endpoints:
     web:

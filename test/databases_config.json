@@ -1,0 +1,20 @@
+[
+  {
+    "name": "db1",
+    "host": "db1",
+    "port": 5432,
+    "database": "test",
+    "username": "postgres",
+    "password": "postgres",
+    "excludeTables": ["passwords", "secrets"]
+  },
+  {
+    "name": "db2",
+    "host": "db2",
+    "port": 5432,
+    "database": "test",
+    "username": "postgres",
+    "password": "postgres",
+    "excludeTables": ["passwords", "secrets"]
+  }
+]

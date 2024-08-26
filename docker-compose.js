@@ -1,4 +1,3 @@
-const POSTGRES_DB = "postgres-azure-backup";
 const POSTGRES_USER = "postgres";
 const POSTGRES_PASSWORD = "postgres";
 
@@ -12,11 +11,6 @@ const config = {
       environment: {
         SERVER_SERVLET_CONTEXT_PATH: "/db",
         SPRING_ACTUATOR_PORT: "8082",
-        POSTGRES_HOSTNAME: "db",
-        POSTGRES_PORT: "5432",
-        POSTGRES_DB,
-        POSTGRES_PASSWORD,
-        POSTGRES_USER,
         BLOBSTORAGE_CONNECTION_STRING: Object.entries({
           DefaultEndpointsProtocol: "http",
           AccountName: "devstoreaccount1",
@@ -26,23 +20,35 @@ const config = {
         })
           .map(([key, value]) => `${key}=${value}`)
           .join(";"),
-        EXCLUDE_TABLES: "passwords,secrets",
+        DATABASES_CONFIG_PATH: "/app/databases_config.json",
       },
       ports: ["8080:8080"],
+      volumes: ["./test/databases_config.json:/app/databases_config.json"],
     },
     blobstorage: {
       image: "mcr.microsoft.com/azure-storage/azurite",
       command: "azurite-blob --blobHost 0.0.0.0",
     },
-    db: {
+    db1: {
       image: "postgres:16.2-bullseye",
       environment: {
-        POSTGRES_DB,
+        POSTGRES_DB: "test",
         POSTGRES_PASSWORD,
         POSTGRES_USER,
       },
       volumes: [
-        `./db/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql`,
+        `./test/create_tables_1.sql:/docker-entrypoint-initdb.d/create_tables.sql`,
+      ],
+    },
+    db2: {
+      image: "postgres:16.2-bullseye",
+      environment: {
+        POSTGRES_DB: "test",
+        POSTGRES_PASSWORD,
+        POSTGRES_USER,
+      },
+      volumes: [
+        `./test/create_tables_2.sql:/docker-entrypoint-initdb.d/create_tables.sql`,
       ],
     },
   },

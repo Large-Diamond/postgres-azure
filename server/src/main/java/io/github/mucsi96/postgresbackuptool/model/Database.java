@@ -1,13 +1,15 @@
 package io.github.mucsi96.postgresbackuptool.model;
 
-import java.util.List;
-
+import java.time.Instant;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
 public class Database {
-  List<Table> tables;
-  int totalRowCount;
+  private String name;
+  private int tablesCount;
+  private int totalRowCount;
+  private int backupsCount;
+  private Instant lastBackupTime;
 }
