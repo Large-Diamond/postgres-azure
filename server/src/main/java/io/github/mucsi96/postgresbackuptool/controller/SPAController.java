@@ -12,10 +12,9 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping(produces = MediaType.TEXT_HTML_VALUE)
 public class SPAController {
 
-  @GetMapping({ "/{segment1:[^.]*}", "/{segment1:.+}/{segment2:[^.]*}" })
+  @GetMapping({ "/", "/{segment1:[^.]*}", "/{segment1:.+}/{segment2:[^.]*}" })
   public String index(HttpServletRequest request, Model model) {
-    String contextPath = request.getContextPath();
-    model.addAttribute("baseHref", contextPath + "/");
+    model.addAttribute("baseHref", request.getContextPath() + "/");
     return "index";
   }
 }
