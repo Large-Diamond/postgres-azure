@@ -1,7 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map, merge, Observable, shareReplay, switchMap, tap } from 'rxjs';
+import {
+  distinctUntilChanged,
+  map,
+  merge,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { environment } from '../../environments/environment';
 import { handleError } from '../utils/handleError';
 import { Database } from '../../types';
@@ -22,25 +31,27 @@ export class DatabasesService {
     backupsService: BackupsService
   ) {
     this.$databases = merge(
+      of(null),
       tableService.getTableMutations(),
       backupsService.getBackupMutations()
     ).pipe(
+      distinctUntilChanged(),
       tap(() => this.loading.set(true)),
       switchMap(() =>
         this.http
           .get<Database[]>(environment.apiContextPath + '/databases')
           .pipe(
+            handleError('Could not fetch databases'),
             map((databases) =>
               databases.map((db) => ({
                 ...db,
                 lastBackupTime: new Date(db.lastBackupTime),
               }))
             ),
-            tap(() => this.loading.set(false)),
-            handleError('Could not fetch databases'),
-            shareReplay(1)
+            tap(() => this.loading.set(false))
           )
-      )
+      ),
+      shareReplay(1)
     );
   }
 
@@ -48,7 +59,7 @@ export class DatabasesService {
     return this.selectedDatabase;
   }
 
-  setDatabaseName(name: string) {
+  setDatabaseName(name: string | undefined) {
     this.selectedDatabase.set(name);
   }
 
