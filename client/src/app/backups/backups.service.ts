@@ -1,9 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import {
-  SuccessNotificationEvent
-} from '@mucsi96/ui-elements';
+import { SuccessNotificationEvent } from '@mucsi96/ui-elements';
 import {
   BehaviorSubject,
   filter,
@@ -11,9 +9,10 @@ import {
   map,
   Observable,
   shareReplay,
+  skip,
   switchMap,
   take,
-  tap
+  tap,
 } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Backup } from '../../types';
@@ -23,7 +22,9 @@ import { handleError } from '../utils/handleError';
   providedIn: 'root',
 })
 export class BackupsService {
-  private readonly $databaseName = new BehaviorSubject<string | undefined>(undefined);
+  private readonly $databaseName = new BehaviorSubject<string | undefined>(
+    undefined
+  );
   private $lastBackupTime: Observable<Date | undefined>;
   private $backups: Observable<Backup[]>;
   private readonly $backupMutations = new BehaviorSubject<void>(undefined);
@@ -49,12 +50,12 @@ export class BackupsService {
                   }))
                 ),
                 handleError('Could not fetch backups.'),
-                shareReplay(1),
                 finalize(() => this.loading.set(false))
               )
           )
         )
-      )
+      ),
+      shareReplay(1)
     );
     this.$lastBackupTime = this.$databaseName.pipe(
       filter((databaseName) => !!databaseName),
@@ -70,16 +71,16 @@ export class BackupsService {
                 map(
                   (lastBackupTime) => lastBackupTime && new Date(lastBackupTime)
                 ),
-                handleError('Unable to fetch last backup time'),
-                shareReplay(1)
+                handleError('Unable to fetch last backup time')
               )
           )
         )
-      )
+      ),
+      shareReplay(1)
     );
   }
 
-  setDatabaseName(databaseName: string) {
+  setDatabaseName(databaseName: string | undefined) {
     this.$databaseName.next(databaseName);
   }
 
@@ -153,6 +154,6 @@ export class BackupsService {
   }
 
   getBackupMutations() {
-    return this.$backupMutations;
+    return this.$backupMutations.pipe(skip(1));
   }
 }

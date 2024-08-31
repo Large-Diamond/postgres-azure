@@ -9,9 +9,10 @@ import {
   map,
   Observable,
   shareReplay,
+  skip,
   switchMap,
   take,
-  tap
+  tap,
 } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Table } from '../../types';
@@ -21,7 +22,9 @@ import { handleError } from '../utils/handleError';
   providedIn: 'root',
 })
 export class TablesService {
-  private readonly $databaseName = new BehaviorSubject<string | undefined>(undefined);
+  private readonly $databaseName = new BehaviorSubject<string | undefined>(
+    undefined
+  );
   private $tables: Observable<{
     tables: Table[];
     totalRowCount: number;
@@ -46,16 +49,16 @@ export class TablesService {
               )
               .pipe(
                 handleError('Could not fetch tables.'),
-                shareReplay(1),
                 finalize(() => this.loading.set(false))
               )
           )
         )
-      )
+      ),
+      shareReplay(1)
     );
   }
 
-  setDatabaseName(name: string) {
+  setDatabaseName(name: string | undefined) {
     this.$databaseName.next(name);
   }
 
@@ -103,6 +106,6 @@ export class TablesService {
   }
 
   getTableMutations() {
-    return this.$tableMutations
+    return this.$tableMutations.pipe(skip(1));
   }
 }
