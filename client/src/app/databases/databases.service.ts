@@ -44,7 +44,8 @@ export class DatabasesService {
             map((databases) =>
               databases.map((db) => ({
                 ...db,
-                lastBackupTime: new Date(db.lastBackupTime),
+                lastBackupTime:
+                  db.lastBackupTime && new Date(db.lastBackupTime),
               }))
             ),
             tap(() => this.loading.set(false))

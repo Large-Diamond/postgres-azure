@@ -24,7 +24,7 @@
       <td bt-no-wrap bt-center-align>{{ database.tablesCount }}</td>
       <td bt-no-wrap bt-center-align>{{ database.totalRowCount }}</td>
       <td bt-no-wrap bt-center-align>{{ database.backupsCount }}</td>
-      @if (database.lastBackupTime) {
+
       <td
         bt-no-wrap
         bt-right-align
@@ -32,11 +32,9 @@
         [attr.bt-green]="!olderThenOneDay(database.lastBackupTime) ? '' : null"
         [attr.bt-red]="olderThenOneDay(database.lastBackupTime) ? '' : null"
       >
-        {{ database.lastBackupTime | relativeTime }}
+        @if (database.lastBackupTime)
+        {{{ database.lastBackupTime | relativeTime }}}@else { — }
       </td>
-      } @else {
-      <td bt-no-wrap></td>
-      }
     </tr>
     }
   </tbody>

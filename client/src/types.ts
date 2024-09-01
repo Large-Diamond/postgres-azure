@@ -3,7 +3,7 @@ export type Database = {
   tablesCount: number;
   totalRowCount: number;
   backupsCount: number;
-  lastBackupTime: Date;
+  lastBackupTime: Date | null;
 };
 
 export type Table = {
