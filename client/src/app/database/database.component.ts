@@ -1,10 +1,8 @@
-import { Component, OnDestroy } from '@angular/core';
-import { TablesComponent } from '../tables/tables.component';
-import { BackupsComponent } from '../backups/backups.component';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BackupsService } from '../backups/backups.service';
-import { TablesService } from '../tables/tables.service';
-import { DatabasesService } from '../databases/databases.service';
+import { BackupsComponent } from '../backups/backups.component';
+import { TablesComponent } from '../tables/tables.component';
+import { SelectedDatabaseService } from './selected-database.service';
 
 @Component({
   selector: 'app-database',
@@ -13,23 +11,13 @@ import { DatabasesService } from '../databases/databases.service';
   templateUrl: './database.component.html',
   styleUrl: './database.component.css',
 })
-export class DatabaseComponent implements OnDestroy {
+export class DatabaseComponent {
   constructor(
     private readonly route: ActivatedRoute,
-    private readonly databasesService: DatabasesService,
-    private readonly backupsService: BackupsService,
-    private readonly tablesService: TablesService
+    selectedDatabaseService: SelectedDatabaseService
   ) {
-    this.route.params.subscribe((params) => {
-      this.databasesService.setDatabaseName(params['name']);
-      this.tablesService.setDatabaseName(params['name']);
-      this.backupsService.setDatabaseName(params['name']);
-    });
-  }
-
-  ngOnDestroy() {
-    this.databasesService.setDatabaseName(undefined);
-    this.tablesService.setDatabaseName(undefined);
-    this.backupsService.setDatabaseName(undefined);
+    this.route.params.subscribe((params) =>
+      selectedDatabaseService.setDatabaseName(params['name'])
+    );
   }
 }

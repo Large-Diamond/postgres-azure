@@ -1,20 +1,24 @@
 @let time = lastBackupTime();
 <header bt>
   <nav>
-    <a routerLink="" bt-logo>Postgres Backup Tool</a>
+    <a routerLink="" bt-logo (click)="resetSelectedDatabase()"
+      >Postgres Backup Tool</a
+    >
     <div class="selected-database">
       @if (databaseName()) {
       <button bt bt-dropdown popovertarget="dropdown-menu-popover">
         {{ databaseName() }}
         <svg></svg>
       </button>
-      <div popover bt id="dropdown-menu-popover">
+      <div popover bt id="dropdown-menu-popover" #popover>
         <ul bt-dropdown-menu>
           @for(database of databases(); track database.name) {
           <li>
-            <a routerLink="/database/{{ database.name }}">{{
-              database.name
-            }}</a>
+            <a
+              routerLink="/database/{{ database.name }}"
+              (click)="popover.hidePopover()"
+              >{{ database.name }}</a
+            >
           </li>
           }
         </ul>

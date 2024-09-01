@@ -22,7 +22,6 @@ import { BackupsService } from '../backups/backups.service';
 })
 export class DatabasesService {
   private $databases: Observable<Database[]>;
-  private readonly selectedDatabase = signal<string | undefined>(undefined);
   private readonly loading = signal(true);
 
   constructor(
@@ -53,14 +52,6 @@ export class DatabasesService {
       ),
       shareReplay(1)
     );
-  }
-
-  getSelectedDatabase() {
-    return this.selectedDatabase;
-  }
-
-  setDatabaseName(name: string | undefined) {
-    this.selectedDatabase.set(name);
   }
 
   getDatabases() {
