@@ -17,14 +17,12 @@ import {
 import { environment } from '../../environments/environment';
 import { Table } from '../../types';
 import { handleError } from '../utils/handleError';
+import { SelectedDatabaseService } from '../database/selected-database.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TablesService {
-  private readonly $databaseName = new BehaviorSubject<string | undefined>(
-    undefined
-  );
   private $tables: Observable<{
     tables: Table[];
     totalRowCount: number;
@@ -33,8 +31,11 @@ export class TablesService {
   private readonly loading = signal(true);
   private readonly processing = signal(false);
 
-  constructor(private readonly http: HttpClient) {
-    this.$tables = this.$databaseName.pipe(
+  constructor(
+    private readonly http: HttpClient,
+    private readonly selectedDatabaseService: SelectedDatabaseService
+  ) {
+    this.$tables = this.selectedDatabaseService.getSelectedDatabase().pipe(
       switchMap((databaseName) =>
         this.$tableMutations.pipe(
           filter(() => !!databaseName),
@@ -58,10 +59,6 @@ export class TablesService {
     );
   }
 
-  setDatabaseName(name: string | undefined) {
-    this.$databaseName.next(name);
-  }
-
   getTables() {
     return toSignal(this.$tables.pipe(map((data) => data.tables)));
   }
@@ -75,7 +72,8 @@ export class TablesService {
   }
 
   restoreBackup(selectedBackup: string) {
-    this.$databaseName
+    this.selectedDatabaseService
+      .getSelectedDatabase()
       .pipe(
         tap(() => this.processing.set(true)),
         switchMap((databaseName) =>

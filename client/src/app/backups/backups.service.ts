@@ -17,22 +17,23 @@ import {
 import { environment } from '../../environments/environment';
 import { Backup } from '../../types';
 import { handleError } from '../utils/handleError';
+import { SelectedDatabaseService } from '../database/selected-database.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BackupsService {
-  private readonly $databaseName = new BehaviorSubject<string | undefined>(
-    undefined
-  );
   private $lastBackupTime: Observable<Date | undefined>;
   private $backups: Observable<Backup[]>;
   private readonly $backupMutations = new BehaviorSubject<void>(undefined);
   private readonly loading = signal(true);
   private readonly processing = signal(false);
 
-  constructor(private readonly http: HttpClient) {
-    this.$backups = this.$databaseName.pipe(
+  constructor(
+    private readonly http: HttpClient,
+    private readonly selectedDatabaseService: SelectedDatabaseService
+  ) {
+    this.$backups = this.selectedDatabaseService.getSelectedDatabase().pipe(
       filter((databaseName) => !!databaseName),
       switchMap((databaseName) =>
         this.$backupMutations.pipe(
@@ -57,31 +58,30 @@ export class BackupsService {
       ),
       shareReplay(1)
     );
-    this.$lastBackupTime = this.$databaseName.pipe(
-      filter((databaseName) => !!databaseName),
-      switchMap((databaseName) =>
-        this.$backupMutations.pipe(
-          switchMap(() =>
-            this.http
-              .get<Date | undefined>(
-                environment.apiContextPath +
-                  `/database/${databaseName}/last-backup-time`
-              )
-              .pipe(
-                map(
-                  (lastBackupTime) => lastBackupTime && new Date(lastBackupTime)
-                ),
-                handleError('Unable to fetch last backup time')
-              )
+    this.$lastBackupTime = this.selectedDatabaseService
+      .getSelectedDatabase()
+      .pipe(
+        filter((databaseName) => !!databaseName),
+        switchMap((databaseName) =>
+          this.$backupMutations.pipe(
+            switchMap(() =>
+              this.http
+                .get<Date | undefined>(
+                  environment.apiContextPath +
+                    `/database/${databaseName}/last-backup-time`
+                )
+                .pipe(
+                  map(
+                    (lastBackupTime) =>
+                      lastBackupTime && new Date(lastBackupTime)
+                  ),
+                  handleError('Unable to fetch last backup time')
+                )
+            )
           )
-        )
-      ),
-      shareReplay(1)
-    );
-  }
-
-  setDatabaseName(databaseName: string | undefined) {
-    this.$databaseName.next(databaseName);
+        ),
+        shareReplay(1)
+      );
   }
 
   getLastBackupTime() {
@@ -97,7 +97,8 @@ export class BackupsService {
   }
 
   createBackup(retentionPeriod: number) {
-    this.$databaseName
+    this.selectedDatabaseService
+      .getSelectedDatabase()
       .pipe(
         tap(() => this.processing.set(true)),
         switchMap((databaseName) =>
@@ -124,7 +125,8 @@ export class BackupsService {
   }
 
   cleanupBackups() {
-    this.$databaseName
+    this.selectedDatabaseService
+      .getSelectedDatabase()
       .pipe(
         tap(() => this.processing.set(true)),
         switchMap((databaseName) =>
