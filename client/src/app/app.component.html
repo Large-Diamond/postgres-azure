@@ -23,17 +23,17 @@
           }
         </ul>
       </div>
-      @if (time) {
+
       <h3 bt>
         Last backup
         <span
           bt-badge
           [attr.bt-green]="!olderThenOneDay(time) ? '' : null"
           [attr.bt-red]="olderThenOneDay(time) ? '' : null"
-          >{{ time | relativeTime }}</span
+          >@if (time) {{{ time | relativeTime }}} @else { — }</span
         >
       </h3>
-      } }
+      }
     </div>
   </nav>
 </header>

@@ -17,6 +17,13 @@ const databases: Database[] = [
     backupsCount: 3,
     lastBackupTime: new Date(new Date().getTime() - 24 * 60 * 60 * 1000 * 0.5),
   },
+  {
+    name: 'db3',
+    tablesCount: 1,
+    totalRowCount: 3,
+    backupsCount: 1,
+    lastBackupTime: null,
+  },
 ];
 
 function getDatabase(name: string): Database {
