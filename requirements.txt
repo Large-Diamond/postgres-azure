@@ -1,1 +1,2 @@
-mucsi96.publish-tools == 35.0.0
+mucsi96.publish-tools == 36.0.0
+pytest-playwright == 0.5.1
