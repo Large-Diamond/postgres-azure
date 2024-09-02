@@ -10,10 +10,10 @@
   },
   "tasks": [
     {
-      "type": "shell",
-      "command": "bash",
+      "type": "process",
+      "command": "${env:SHELL}",
+      "args": ["--login", "--interactive", "scripts/install_dependencies.sh"],
       "label": "Install dependencies",
-      "args": ["scripts/install_dependencies.sh"],
       "options": {
         "cwd": "${workspaceFolder}"
       },
