@@ -1,2 +1,4 @@
 mucsi96.publish-tools == 36.0.0
 pytest-playwright == 0.5.1
+azure-storage-blob == 12.22.0
+psycopg2 == 2.9.9

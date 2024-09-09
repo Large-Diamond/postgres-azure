@@ -28,6 +28,7 @@ const config = {
     blobstorage: {
       image: "mcr.microsoft.com/azure-storage/azurite",
       command: "azurite-blob --blobHost 0.0.0.0",
+      ports: ["8081:10000"],
     },
     db1: {
       image: "postgres:16.2-bullseye",
@@ -36,9 +37,7 @@ const config = {
         POSTGRES_PASSWORD,
         POSTGRES_USER,
       },
-      volumes: [
-        `./test/create_tables_1.sql:/docker-entrypoint-initdb.d/create_tables.sql`,
-      ],
+      ports: ["8082:5432"],
     },
     db2: {
       image: "postgres:16.2-bullseye",
@@ -47,9 +46,7 @@ const config = {
         POSTGRES_PASSWORD,
         POSTGRES_USER,
       },
-      volumes: [
-        `./test/create_tables_2.sql:/docker-entrypoint-initdb.d/create_tables.sql`,
-      ],
+      ports: ["8083:5432"],
     },
   },
 };
