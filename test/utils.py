@@ -1,7 +1,7 @@
 from calendar import c
 import re
 from typing import List, Dict
-from playwright.sync_api import Page
+from playwright.sync_api import Page, Locator
 from azure.storage.blob import BlobClient, BlobServiceClient
 import psycopg2
 from datetime import datetime, timedelta, timezone
@@ -21,13 +21,11 @@ conn2 = psycopg2.connect(
 )
 
 
-def extract_table_data(page: Page) -> List[Dict[str, str]]:
+def extract_table_data(table: Locator) -> List[Dict[str, str]]:
     headers = [
-        header.capitalize()
-        for header in page.locator("table thead th").all_inner_texts()
+        header.capitalize() for header in table.locator("thead th").all_inner_texts()
     ]
-    assert headers == ["", "Name", "Tables", "Records", "Backups", "Last backup"]
-    rows = page.locator("table tbody tr").all()
+    rows = table.locator("tbody tr").all()
     table_data = []
 
     for row in rows:
@@ -52,27 +50,13 @@ def create_backup(
     )
 
 
-def cleanup_blob_storage():
+def cleanup_backups():
     for container in blob_service_client.list_containers():
         container_client = blob_service_client.get_container_client(container.name)
         for blob in container_client.list_blobs():
             blob_client = container_client.get_blob_client(blob.name)
             blob_client.delete_blob()
         container_client.delete_container()
-    create_backup(
-        db_name="db1",
-        rowsCount=8,
-        time_delta=timedelta(hours=10),
-        retention=1,
-        size=100,
-    )
-    create_backup(
-        db_name="db1",
-        rowsCount=7,
-        time_delta=timedelta(days=3, hours=10),
-        retention=7,
-        size=150,
-    )
 
 
 def cleanup_db():
@@ -94,6 +78,16 @@ def cleanup_db():
     table_names2 = [table[0] for table in cur2.fetchall()]
     for table_name in table_names2:
         cur2.execute(f"DROP TABLE {table_name}")
+
+    conn1.commit()
+    conn2.commit()
+    cur1.close()
+    cur2.close()
+
+
+def populate_db():
+    cur1 = conn1.cursor()
+    cur2 = conn2.cursor()
 
     cur1.execute(
         """
@@ -148,7 +142,17 @@ def cleanup_db():
         INSERT INTO secrets (secret) VALUES ('delta');
     """
     )
+
     conn1.commit()
     conn2.commit()
     cur1.close()
     cur2.close()
+
+def get_db1_tables():
+    cur1 = conn1.cursor()
+    cur1.execute(
+        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
+    )
+    tables = [table[0] for table in cur1.fetchall()]
+    cur1.close()
+    return tables

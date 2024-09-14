@@ -10,7 +10,7 @@ def test_shows_number_of_tables(page: Page):
     page.goto("http://localhost:8080/db")
     expect(page.get_by_role("row")).to_have_count(3)
 
-    table_data = extract_table_data(page)
+    table_data = extract_table_data(page.locator(":text('Databases') + table"))
 
     assert table_data == [
         {
