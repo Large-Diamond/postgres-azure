@@ -18,8 +18,8 @@ def test_shows_number_of_tables(page: Page):
             "Name": "db1",
             "Tables": "2",
             "Records": "9",
-            "Backups": "0",
-            "Last backup": "—",
+            "Backups": "2",
+            "Last backup": "10 hours ago",
         },
         {
             "": "",
