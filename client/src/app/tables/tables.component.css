@@ -1,10 +1,8 @@
 :host {
   display: grid;
   gap: 40px;
-  
-  .tables,
-  .backup,
-  .cleanup {
+
+  .tables {
     display: grid;
     gap: 20px;
   }

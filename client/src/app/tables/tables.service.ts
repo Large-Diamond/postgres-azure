@@ -104,6 +104,6 @@ export class TablesService {
   }
 
   getTableMutations() {
-    return this.$tableMutations.pipe(skip(1));
+    return this.$tableMutations;
   }
 }
