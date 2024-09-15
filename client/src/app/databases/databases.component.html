@@ -39,4 +39,25 @@
     }
   </tbody>
 </table>
+<div class="backup">
+  <h2 bt>Backup</h2>
+  <label bt
+    >Retention period (days)<input
+      type="number"
+      [(ngModel)]="retentionPeriod"
+      min="1"
+      max="356"
+      step="1"
+  /></label>
+  <section>
+    <button bt [disabled]="processing()" (click)="createBackup()">
+      Backup
+    </button>
+  </section>
+</div>
+<div>
+  <button bt bt-red [disabled]="processing()" (click)="cleanupBackups()">
+    Cleanup
+  </button>
+</div>
 } }

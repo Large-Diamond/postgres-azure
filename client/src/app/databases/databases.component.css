@@ -1,4 +1,10 @@
 :host {
   display: grid;
   gap: 20px;
+
+  .backup,
+  .cleanup {
+    display: grid;
+    gap: 20px;
+  }
 }

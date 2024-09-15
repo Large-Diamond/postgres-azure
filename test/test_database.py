@@ -27,11 +27,11 @@ def test_shows_tables_and_record_count_in_db(page: Page):
 def test_restores_backup(page: Page):
     cleanup_backups()
     page.goto("http://localhost:8080/db")
-    page.get_by_text("db1").click()
     page.get_by_role("button", name="Backup").click()
     expect(page.get_by_role("status").filter(has_text="Backup created")).to_be_visible()
     cleanup_db()
     page.reload()
+    page.get_by_text("db1").click()
     expect(page.get_by_role("heading", name="Records")).to_have_text("Records 0")
     expect(page.get_by_role("heading", name="Tables")).to_have_text("Tables 0")
     page.locator(":text('Backups') + table").get_by_text("1 day").click()
@@ -46,10 +46,10 @@ def test_restores_backup(page: Page):
 def test_doesnt_restore_excluded_tables(page: Page):
     cleanup_backups()
     page.goto("http://localhost:8080/db")
-    page.get_by_text("db1").click()
     page.get_by_role("button", name="Backup").click()
     expect(page.get_by_role("status").filter(has_text="Backup created")).to_be_visible()
     cleanup_db()
+    page.get_by_text("db1").click()
     page.locator(":text('Backups') + table").get_by_text("1 day").click()
     page.get_by_role("button", name="Restore").click()
     expect(

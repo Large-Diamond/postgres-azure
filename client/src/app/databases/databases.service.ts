@@ -2,20 +2,18 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
-  distinctUntilChanged,
+  combineLatest,
   map,
-  merge,
   Observable,
-  of,
   shareReplay,
   switchMap,
-  tap,
+  tap
 } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { handleError } from '../utils/handleError';
 import { Database } from '../../types';
-import { TablesService } from '../tables/tables.service';
 import { BackupsService } from '../backups/backups.service';
+import { TablesService } from '../tables/tables.service';
+import { handleError } from '../utils/handleError';
 
 @Injectable({
   providedIn: 'root',
@@ -29,12 +27,10 @@ export class DatabasesService {
     tableService: TablesService,
     backupsService: BackupsService
   ) {
-    this.$databases = merge(
-      of(null),
+    this.$databases = combineLatest([
       tableService.getTableMutations(),
-      backupsService.getBackupMutations()
-    ).pipe(
-      distinctUntilChanged(),
+      backupsService.getBackupMutations(),
+    ]).pipe(
       tap(() => this.loading.set(true)),
       switchMap(() =>
         this.http

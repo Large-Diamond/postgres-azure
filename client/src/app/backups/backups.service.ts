@@ -97,55 +97,41 @@ export class BackupsService {
   }
 
   createBackup(retentionPeriod: number) {
-    this.selectedDatabaseService
-      .getSelectedDatabase()
+    this.http
+      .post<void>(
+        environment.apiContextPath +
+          `/backup?retention_period=${retentionPeriod}`,
+        {}
+      )
       .pipe(
-        tap(() => this.processing.set(true)),
-        switchMap((databaseName) =>
-          this.http
-            .post<void>(
-              environment.apiContextPath +
-                `/database/${databaseName}/backup?retention_period=${retentionPeriod}`,
-              {}
-            )
-            .pipe(
-              handleError('Could not create backup.'),
-              tap(() => {
-                document.dispatchEvent(
-                  new SuccessNotificationEvent('Backup created')
-                );
-                this.$backupMutations.next();
-              }),
-              finalize(() => this.processing.set(false))
-            )
-        ),
+        handleError('Could not create backup.'),
+        tap(() => {
+          document.dispatchEvent(
+            new SuccessNotificationEvent('Backup created')
+          );
+          this.$backupMutations.next();
+        }),
+        finalize(() => this.processing.set(false)),
         take(1)
       )
       .subscribe();
   }
 
   cleanupBackups() {
-    this.selectedDatabaseService
-      .getSelectedDatabase()
+    this.http
+      .post<void>(
+        environment.apiContextPath + `/cleanup`,
+        {}
+      )
       .pipe(
-        tap(() => this.processing.set(true)),
-        switchMap((databaseName) =>
-          this.http
-            .post<void>(
-              environment.apiContextPath + `/database/${databaseName}/cleanup`,
-              {}
-            )
-            .pipe(
-              handleError('Could not cleanup backups'),
-              tap(() => {
-                document.dispatchEvent(
-                  new SuccessNotificationEvent('Backup cleanup finished')
-                );
-                this.$backupMutations.next();
-              }),
-              finalize(() => this.processing.set(false))
-            )
-        ),
+        handleError('Could not cleanup backups'),
+        tap(() => {
+          document.dispatchEvent(
+            new SuccessNotificationEvent('Backup cleanup finished')
+          );
+          this.$backupMutations.next();
+        }),
+        finalize(() => this.processing.set(false)),
         take(1)
       )
       .subscribe();
@@ -156,6 +142,6 @@ export class BackupsService {
   }
 
   getBackupMutations() {
-    return this.$backupMutations.pipe(skip(1));
+    return this.$backupMutations;
   }
 }

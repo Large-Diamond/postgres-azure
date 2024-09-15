@@ -28,46 +28,53 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class BackupController {
-  private final BackupService backupService;
-  private final DatabaseService databaseService;
+    private final BackupService backupService;
+    private final DatabaseService databaseService;
 
-  @GetMapping("/database/{database_name}/backups")
-  @ResponseBody
-  List<Backup> list(@PathVariable("database_name") String databaseName) {
-    return backupService.getBackups(databaseName);
-  }
+    @PostMapping("/backup")
+    @ResponseBody
+    void create(
+            @RequestParam("retention_period") @Min(1) @Max(356) int retentionPeriod)
+            throws IOException, InterruptedException {
+        databaseService.getDatabases().forEach(databaseName -> {
+            try {
+                File dumpFile = databaseService.createDump(databaseName,
+                        retentionPeriod);
+                backupService.createBackup(databaseName, dumpFile);
 
-  @PostMapping("/database/{database_name}/backup")
-  @ResponseBody
-  void create(@PathVariable("database_name") String databaseName,
-      @RequestParam("retention_period") @Min(1) @Max(356) int retentionPeriod)
-      throws IOException, InterruptedException {
-    File dumpFile = databaseService.createDump(databaseName, retentionPeriod);
-    backupService.createBackup(databaseName, dumpFile);
+                dumpFile.delete();
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 
-    dumpFile.delete();
-  }
+    @PostMapping("/cleanup")
+    @ResponseBody
+    void cleanup() {
+        databaseService.getDatabases().forEach(backupService::cleanup);
+    }
 
-  @PostMapping("/database/{database_name}/restore/{key}")
-  @ResponseBody
-  void restore(@PathVariable("database_name") String databaseName,
-      @PathVariable String key) throws IOException, InterruptedException {
-    File dumpFile = backupService.downloadBackup(databaseName, key);
-    databaseService.restoreDump(databaseName, dumpFile);
+    @GetMapping("/database/{database_name}/backups")
+    @ResponseBody
+    List<Backup> list(@PathVariable("database_name") String databaseName) {
+        return backupService.getBackups(databaseName);
+    }
 
-    dumpFile.delete();
-  }
+    @PostMapping("/database/{database_name}/restore/{key}")
+    @ResponseBody
+    void restore(@PathVariable("database_name") String databaseName,
+            @PathVariable String key) throws IOException, InterruptedException {
+        File dumpFile = backupService.downloadBackup(databaseName, key);
+        databaseService.restoreDump(databaseName, dumpFile);
 
-  @PostMapping("/database/{database_name}/cleanup")
-  @ResponseBody
-  void cleanup(@PathVariable("database_name") String databaseName) {
-    backupService.cleanup(databaseName);
-  }
+        dumpFile.delete();
+    }
 
-  @GetMapping("/database/{database_name}/last-backup-time")
-  @ResponseBody
-  Optional<Instant> lastBackupTime(
-      @PathVariable("database_name") String databaseName) {
-    return backupService.getLastBackupTime(databaseName);
-  }
+    @GetMapping("/database/{database_name}/last-backup-time")
+    @ResponseBody
+    Optional<Instant> lastBackupTime(
+            @PathVariable("database_name") String databaseName) {
+        return backupService.getLastBackupTime(databaseName);
+    }
 }

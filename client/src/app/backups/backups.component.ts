@@ -41,8 +41,4 @@ export class BackupsComponent {
   selectBackup(backup: Backup) {
     this.selectedBackup.set(backup.name);
   }
-
-  cleanupBackups() {
-    this.backupsService.cleanupBackups();
-  }
 }
