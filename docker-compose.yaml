@@ -9,7 +9,7 @@ services:
     environment:
       SERVER_SERVLET_CONTEXT_PATH: "/db"
       SPRING_ACTUATOR_PORT: "8082"
-      BLOBSTORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:8081/devstoreaccount1;"
+      BLOBSTORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blobstorage:10000/devstoreaccount1;"
       DATABASES_CONFIG_PATH: "/app/databases_config.json"
     ports:
       - "8080:8080"
