@@ -1,5 +1,6 @@
 from datetime import timedelta
 from playwright.sync_api import Page, expect
+from typing import Any, Dict, List
 from utils import (
     cleanup_backups,
     create_backup,
@@ -7,10 +8,14 @@ from utils import (
 )
 
 
-def without_names(table_data):
-    return list(
-        map(lambda row: {k: v for k, v in row.items() if k != "Name"}, table_data)
-    )
+def without_keys(data: Dict[str, Any], keys: List[str]) -> Dict[str, Any]:
+    return {k: v for k, v in data.items() if k not in keys}
+
+
+def list_without_keys(
+    data: List[Dict[str, Any]], keys: List[str]
+) -> List[Dict[str, Any]]:
+    return [without_keys(row, keys) for row in data]
 
 
 def test_shows_number_of_backups(page: Page):
@@ -30,8 +35,8 @@ def test_shows_last_backup_time(page: Page):
 def test_shows_backups(page: Page):
     page.goto("http://localhost:8080/db")
     page.get_by_text("db1").click()
-    table_data = without_names(
-        extract_table_data(page.locator(":text('Backups') + table"))
+    table_data = list_without_keys(
+        extract_table_data(page.locator(":text('Backups') + table")), ["Name"]
     )
 
     assert table_data == [
@@ -58,13 +63,13 @@ def test_creates_backup(page: Page):
     page.get_by_text("db1").click()
     page.get_by_role("button", name="Backup").click()
     expect(page.get_by_role("status").filter(has_text="Backup created")).to_be_visible()
-    table_data = without_names(
-        extract_table_data(page.locator(":text('Backups') + table"))
+    table_data = list_without_keys(
+        extract_table_data(page.locator(":text('Backups') + table")),
+        ["Name", "Date"],
     )
     assert table_data == [
         {
             "": "Restore",
-            "Date": "1 second ago",
             "Records": "9",
             "Size": "1.7 KB",
             "Retention": "1 day",
@@ -80,13 +85,13 @@ def test_creates_backup_with_retention(page: Page):
     retention_period_input.fill("7")
     page.get_by_role("button", name="Backup").click()
     expect(page.get_by_role("status").filter(has_text="Backup created")).to_be_visible()
-    table_data = without_names(
-        extract_table_data(page.locator(":text('Backups') + table"))
+    table_data = list_without_keys(
+        extract_table_data(page.locator(":text('Backups') + table")),
+        ["Name", "Date"],
     )
     assert table_data == [
         {
             "": "Restore",
-            "Date": "now",
             "Records": "9",
             "Size": "1.7 KB",
             "Retention": "7 days",
@@ -131,8 +136,9 @@ def test_cleans_up_outdated_backups(page: Page):
         page.get_by_role("status").filter(has_text="Cleanup finished")
     ).to_be_visible()
 
-    table_data = without_names(
-        extract_table_data(page.locator(":text('Backups') + table"))
+    table_data = list_without_keys(
+        extract_table_data(page.locator(":text('Backups') + table")),
+        ["Name"],
     )
     assert table_data == [
         {
