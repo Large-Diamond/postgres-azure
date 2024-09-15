@@ -71,13 +71,13 @@
     {
       "type": "shell",
       "label": "Compose up",
-      "command": "node docker-compose.js | docker compose --file - up --build --force-recreate --wait --remove-orphans --pull always",
+      "command": "docker compose up --build --force-recreate --wait --remove-orphans --pull always",
       "problemMatcher": []
     },
     {
       "type": "shell",
       "label": "Compose down",
-      "command": "node docker-compose.js | docker compose --file - down",
+      "command": "docker compose down",
       "problemMatcher": []
     },
     {
