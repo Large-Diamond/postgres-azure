@@ -86,7 +86,7 @@ def test_creates_backup_with_retention(page: Page):
     assert table_data == [
         {
             "": "Restore",
-            "Date": "1 second ago",
+            "Date": "now",
             "Records": "9",
             "Size": "1.7 KB",
             "Retention": "7 days",
