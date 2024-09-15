@@ -15,12 +15,26 @@ services:
       - "8080:8080"
     volumes:
       - "./test/databases_config.json:/app/databases_config.json"
+    healthcheck:
+      test: "curl --fail --silent localhost:8082/actuator/health/readiness | grep UP || exit 1"
+      interval: 2s
+      timeout: 3s
+      retries: 5
+      start_period: 2s
+    depends_on:
+      - db1
+      - db2
+      - blobstorage
 
   blobstorage:
     image: "mcr.microsoft.com/azure-storage/azurite"
     command: "azurite-blob --blobHost 0.0.0.0"
     ports:
       - "8081:10000"
+    healthcheck:
+      test: nc 127.0.0.1 10000 -z
+      interval: 1s
+      retries: 30
 
   db1:
     image: "postgres:16.2-bullseye"
@@ -30,6 +44,11 @@ services:
       POSTGRES_USER: "postgres"
     ports:
       - "8082:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db2:
     image: "postgres:16.2-bullseye"
@@ -39,3 +58,8 @@ services:
       POSTGRES_USER: "postgres"
     ports:
       - "8083:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
