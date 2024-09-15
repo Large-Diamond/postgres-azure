@@ -13,13 +13,6 @@ blob_service_client = BlobServiceClient.from_connection_string(
     + "/devstoreaccount1;"
 )
 
-conn1 = psycopg2.connect(
-    database="test", host="localhost", user="postgres", password="postgres", port="8082"
-)
-conn2 = psycopg2.connect(
-    database="test", host="localhost", user="postgres", password="postgres", port="8083"
-)
-
 
 def extract_table_data(table: Locator) -> List[Dict[str, str]]:
     headers = [
@@ -60,6 +53,20 @@ def cleanup_backups():
 
 
 def cleanup_db():
+    conn1 = psycopg2.connect(
+        database="test",
+        host="localhost",
+        user="postgres",
+        password="postgres",
+        port="8082",
+    )
+    conn2 = psycopg2.connect(
+        database="test",
+        host="localhost",
+        user="postgres",
+        password="postgres",
+        port="8083",
+    )
     cur1 = conn1.cursor()
     cur2 = conn2.cursor()
 
@@ -86,6 +93,20 @@ def cleanup_db():
 
 
 def populate_db():
+    conn1 = psycopg2.connect(
+        database="test",
+        host="localhost",
+        user="postgres",
+        password="postgres",
+        port="8082",
+    )
+    conn2 = psycopg2.connect(
+        database="test",
+        host="localhost",
+        user="postgres",
+        password="postgres",
+        port="8083",
+    )
     cur1 = conn1.cursor()
     cur2 = conn2.cursor()
 
@@ -148,7 +169,15 @@ def populate_db():
     cur1.close()
     cur2.close()
 
+
 def get_db1_tables():
+    conn1 = psycopg2.connect(
+        database="test",
+        host="localhost",
+        user="postgres",
+        password="postgres",
+        port="8082",
+    )
     cur1 = conn1.cursor()
     cur1.execute(
         "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"

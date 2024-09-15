@@ -143,12 +143,12 @@ public class DatabaseService {
 
         jdbcTemplate.execute(String.format(
                 "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '%s' AND pid <> pg_backend_pid();",
-                databaseName));
-        jdbcTemplate.execute(
-                String.format("DROP DATABASE IF EXISTS \"%s\";", databaseName));
-        jdbcTemplate.execute(
-                String.format("ALTER DATABASE \"%s\" RENAME TO \"%s\";",
-                        restoreDatabaseName, databaseName));
+                databaseConfiguration.getDatabase()));
+        jdbcTemplate.execute(String.format("DROP DATABASE IF EXISTS \"%s\";",
+                databaseConfiguration.getDatabase()));
+        jdbcTemplate.execute(String.format(
+                "ALTER DATABASE \"%s\" RENAME TO \"%s\";", restoreDatabaseName,
+                databaseConfiguration.getDatabase()));
 
         System.out.println("Switch complete");
     }
