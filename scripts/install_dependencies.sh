@@ -5,3 +5,6 @@ blobstorage_endpoint_url=$(az keyvault secret show --vault-name p02 --name demo-
 echo "BLOBSTORAGE_ENDPOINT_URL=$blobstorage_endpoint_url" > .env
 
 pip install -r requirements.txt
+
+
+playwright install --with-deps chromium
