@@ -10,9 +10,8 @@
   },
   "tasks": [
     {
-      "type": "process",
-      "command": "${env:SHELL}",
-      "args": ["--login", "--interactive", "scripts/install_dependencies.sh"],
+      "type": "shell",
+      "command": "scripts/install_dependencies.sh",
       "label": "Install dependencies",
       "options": {
         "cwd": "${workspaceFolder}"
