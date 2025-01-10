@@ -17,6 +17,7 @@ def test_shows_total_table_count_in_db(page: Page):
 def test_shows_tables_and_record_count_in_db(page: Page):
     page.goto("http://localhost:8080/db")
     page.get_by_text("db1").click()
+    expect(page.get_by_role("heading", name="Tables")).to_have_text("Tables 2")
     table_data = extract_table_data(page.locator((":text('Tables') + table")))
     assert table_data == [
         {"Name": "fruites", "Records": "4"},
