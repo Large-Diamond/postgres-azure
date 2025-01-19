@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 import io.github.mucsi96.postgresbackuptool.configuration.DatabaseConfiguration;
 import io.github.mucsi96.postgresbackuptool.model.DatabaseInfo;
@@ -34,9 +35,10 @@ public class DatabaseService {
             @Value("${databasesConfigPath}") String databasesConfigPath,
             DateTimeFormatter dateTimeFormatter)
             throws StreamReadException, DatabindException, IOException {
-        this.databases = Arrays.asList(new ObjectMapper().readValue(
-                Paths.get(databasesConfigPath).toFile(),
-                DatabaseConfiguration[].class));
+        this.databases = Arrays
+                .asList(new ObjectMapper().registerModule(new Jdk8Module())
+                        .readValue(Paths.get(databasesConfigPath).toFile(),
+                                DatabaseConfiguration[].class));
         this.dateTimeFormatter = dateTimeFormatter;
     }
 
