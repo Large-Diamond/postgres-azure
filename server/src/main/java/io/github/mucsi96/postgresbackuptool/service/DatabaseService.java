@@ -60,6 +60,7 @@ public class DatabaseService {
 
         List<Table> tables = result.stream()
                 .filter(table -> !databaseConfiguration.getExcludeTables()
+                        .orElse(List.of())
                         .contains((String) table.get("table_name")))
                 .map(table -> {
                     String tableName = (String) table.get("table_name");
@@ -84,13 +85,15 @@ public class DatabaseService {
         String filename = String.format("%s.%s.%s.pgdump", timeString,
                 getDatabaseInfo(databaseName).getTotalRowCount(),
                 retentionPeriod);
-        List<String> commands = Stream.of(
-                List.of("pg_dump", "--dbname",
+        List<String> commands = Stream
+                .of(List.of("pg_dump", "--dbname",
                         databaseConfiguration.getConnectionString(), "--format",
                         "c", "--file", filename),
-                databaseConfiguration.getExcludeTables().stream().flatMap(
-                        table -> List.of("--exclude-table", table).stream())
-                        .toList())
+                        databaseConfiguration.getExcludeTables()
+                                .orElse(List.of()).stream()
+                                .flatMap(table -> List
+                                        .of("--exclude-table", table).stream())
+                                .toList())
                 .flatMap(x -> x.stream()).toList();
 
         System.out.println("Creating dump: " + String.join(", ", commands));
