@@ -12,7 +12,10 @@ import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Configuration
+@Slf4j
 public class BackupConfiguration {
 
   @Bean
@@ -20,10 +23,16 @@ public class BackupConfiguration {
       @Value("${blobstorage.endpoint}") String endpointUrl,
       @Value("${blobstorage.connectionString}") String connectionString) {
 
+    log.info("endpointUrl: {}", endpointUrl);
+    log.info("connectionString: {}", connectionString);
+
     if (connectionString != null && !connectionString.isEmpty()) {
+      log.info("Using connection string to authenticate");
       return new BlobServiceClientBuilder().connectionString(connectionString)
           .buildClient();
     }
+
+    log.info("Using managed identity to authenticate");
 
     TokenCredential tokenCredential = new DefaultAzureCredentialBuilder()
         .build();
