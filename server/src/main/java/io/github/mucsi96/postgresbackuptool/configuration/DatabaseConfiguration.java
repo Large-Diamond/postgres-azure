@@ -66,4 +66,12 @@ public class DatabaseConfiguration {
 
         return new JdbcTemplate(dataSource);
     }
+
+    public Optional<List<String>> getExcludeTables() {
+        return excludeTables == null ? Optional.empty() : excludeTables;
+    }
+
+    public void setExcludeTables(Optional<List<String>> excludeTables) {
+        this.excludeTables = excludeTables;
+    }
 }
