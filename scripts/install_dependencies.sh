@@ -1,10 +1,19 @@
 #!/bin/sh
 
-blobstorage_endpoint_url=$(az keyvault secret show --vault-name p02 --name demo-db-backup-endpoint-url --query value -o tsv)
+blobStorageEndpointUrl=$(az storage account show --name ibari --resource-group ibari --query "primaryEndpoints.blob" --output tsv)
+spaClientId=$(az keyvault secret show --vault-name p05 --name backup-spa-client-id --query value -o tsv)
+tenantId=$(az keyvault secret show --vault-name p05 --name tenant-id --query value -o tsv)
 
-echo "BLOBSTORAGE_ENDPOINT_URL=$blobstorage_endpoint_url" > .env
+echo "BLOBSTORAGE_ENDPOINT_URL=$blobStorageEndpointUrl" > .env
+echo "DATABASES_CONFIG_PATH=../scripts/databases_config.json" >> .env
+
+echo "NG_APP_CLIENT_ID=$spaClientId" > client/.env
+echo "NG_APP_TENANT_ID=$tenantId" >> client/.env
 
 pip install -r requirements.txt
 
+cd server && mvn clean install && cd ..
+cd client && npm install && cd ..
 
 playwright install --with-deps chromium
+

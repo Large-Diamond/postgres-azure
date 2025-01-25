@@ -14,3 +14,4 @@ dist
 
 __pycache__/
 test-results/
+scripts/databases_config.json
