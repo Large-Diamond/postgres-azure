@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,7 @@ public class DatabaseController {
   private final DatabaseService databaseService;
   private final BackupService backupService;
 
+  @PreAuthorize("hasRole('ROLE_DatabaseBackupsReader') and hasScope('readBackups')")
   @GetMapping("/databases")
   @ResponseBody
   public List<Database> getDatabases() {
@@ -41,6 +43,7 @@ public class DatabaseController {
     }).toList();
   }
 
+  @PreAuthorize("hasRole('ROLE_DatabaseBackupsReader') and hasScope('readBackups')")
   @GetMapping("/database/{database_name}/tables")
   @ResponseBody
   public DatabaseInfo getDatabaseInfo(@PathVariable("database_name") String databaseName) {
