@@ -1,4 +1,8 @@
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  provideHttpClient,
+  withInterceptorsFromDi
+} from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import {
@@ -18,20 +22,21 @@ import {
   LogLevel,
   PublicClientApplication,
 } from '@azure/msal-browser';
-import { routes } from './app.routes';
 import { environment } from '../environments/environment.development';
+import { routes } from './app.routes';
 
 const apiScopes = [
-  `${environment.apiClientId}/write`,
-];
+  'readBackups',
+  'createBackup',
+  'cleanupBackups',
+  'restoreBackup',
+].map((scope) => `${environment.apiClientId}/${scope}`);
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(
-      withInterceptorsFromDi(),
-    ),
+    provideHttpClient(withInterceptorsFromDi()),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: MsalInterceptor,
