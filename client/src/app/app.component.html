@@ -23,7 +23,6 @@
           }
         </ul>
       </div>
-
       <h3 bt>
         Last backup
         <span
@@ -34,6 +33,16 @@
         >
       </h3>
       }
+      <button bt-avatar id="avatar" popovertarget="avatar-popover">
+        {{ profile()?.initials }}
+      </button>
+      <div popover bt id="avatar-popover">
+        <ul bt-dropdown-menu>
+          <li>
+            {{ profile()?.name }}
+          </li>
+        </ul>
+      </div>
     </div>
   </nav>
 </header>

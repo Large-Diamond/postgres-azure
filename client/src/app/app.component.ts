@@ -6,6 +6,7 @@ import { SelectedDatabaseService } from './database/selected-database.service';
 import { DatabasesService } from './databases/databases.service';
 import { olderThenOneDay } from './utils/dateUtils';
 import { RelativeTimePipe } from './utils/relativeTime.pipe';
+import { UserProfileService } from './user-profile.service';
 
 @Component({
   selector: 'app-root',
@@ -19,21 +20,24 @@ export class AppComponent {
   databases: Signal<Database[] | undefined>;
   lastBackupTime: Signal<Date | undefined>;
   olderThenOneDay = olderThenOneDay;
+  profile: Signal<{ name: string; initials: string } | undefined>;
 
   @ViewChild('popover') popover!: ElementRef;
 
   constructor(
     private readonly databasesService: DatabasesService,
     private readonly selectedDatabaseService: SelectedDatabaseService,
-    private readonly backupsService: BackupsService
+    private readonly backupsService: BackupsService,
+    private readonly userProfileService: UserProfileService
   ) {
     this.databases = this.databasesService.getDatabases();
     this.databaseName =
       this.selectedDatabaseService.getSelectedDatabaseSignal();
     this.lastBackupTime = this.backupsService.getLastBackupTime();
+    this.profile = this.userProfileService.getProfile();
   }
 
   resetSelectedDatabase() {
-    this.selectedDatabaseService.resetSelectedDatabase()
+    this.selectedDatabaseService.resetSelectedDatabase();
   }
 }
