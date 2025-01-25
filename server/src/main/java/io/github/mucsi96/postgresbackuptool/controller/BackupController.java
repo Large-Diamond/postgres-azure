@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,7 @@ public class BackupController {
     private final BackupService backupService;
     private final DatabaseService databaseService;
 
+    @PreAuthorize("hasRole('ROLE_DatabaseBackupCreator') and hasScope('createBackup')")
     @PostMapping("/backup")
     @ResponseBody
     void create(
@@ -49,18 +51,21 @@ public class BackupController {
         });
     }
 
+    @PreAuthorize("hasRole('ROLE_DatabaseBackupCleaner') and hasScope('cleanupBackups')")
     @PostMapping("/cleanup")
     @ResponseBody
     void cleanup() {
         databaseService.getDatabases().forEach(backupService::cleanup);
     }
 
+    @PreAuthorize("hasRole('ROLE_DatabaseBackupsReader') and hasScope('readBackups')")
     @GetMapping("/database/{database_name}/backups")
     @ResponseBody
     List<Backup> list(@PathVariable("database_name") String databaseName) {
         return backupService.getBackups(databaseName);
     }
 
+    @PreAuthorize("hasRole('ROLE_DatabaseBackupRestorer') and hasScope('restoreBackup')")
     @PostMapping("/database/{database_name}/restore/{key}")
     @ResponseBody
     void restore(@PathVariable("database_name") String databaseName,
@@ -71,6 +76,7 @@ public class BackupController {
         dumpFile.delete();
     }
 
+    @PreAuthorize("hasRole('ROLE_DatabaseBackupsReader') and hasScope('readBackups')")
     @GetMapping("/database/{database_name}/last-backup-time")
     @ResponseBody
     Optional<Instant> lastBackupTime(

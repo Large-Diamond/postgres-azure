@@ -7,6 +7,8 @@ tenantId=$(az keyvault secret show --vault-name p05 --name tenant-id --query val
 
 echo "BLOBSTORAGE_ENDPOINT_URL=$blobStorageEndpointUrl" > .env
 echo "DATABASES_CONFIG_PATH=../scripts/databases_config.json" >> .env
+echo "AUTH_ISSUER_URI=https://login.microsoftonline.com/$tenantId/v2.0" >> .env
+echo "AUTH_JWK_SET_URI=https://login.microsoftonline.com/$tenantId/discovery/v2.0/keys" >> .env
 
 echo "NG_APP_TENANT_ID=$tenantId" > client/.env
 echo "NG_APP_CLIENT_ID=$spaClientId" >> client/.env
