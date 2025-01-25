@@ -1,9 +1,12 @@
 import '../mocks/browser';
 
 export const environment = {
+  production: false,
   apiContextPath: '/api',
-  clientId: import.meta.env.NG_APP_CLIENT_ID,
+  apiBaseUrl: 'http://localhost:4200/api',
   tenantId: import.meta.env.NG_APP_TENANT_ID,
+  clientId: import.meta.env.NG_APP_CLIENT_ID,
+  apiClientId: import.meta.env.NG_APP_API_CLIENT_ID,
 };
 
 console.log('Environment:', environment);
