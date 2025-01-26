@@ -16,9 +16,9 @@ management:
         enabled: true
 
 spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${AUTH_ISSUER_URI}
-          jwk-set-uri: ${AUTH_JWK_SET_URI}
+  cloud:
+    azure:
+      active-directory:
+        enabled: true
+        credential:
+          client-id: ${CLIENT_ID}

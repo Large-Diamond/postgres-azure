@@ -1,7 +1,7 @@
 import {
   HTTP_INTERCEPTORS,
   provideHttpClient,
-  withInterceptorsFromDi
+  withInterceptorsFromDi,
 } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
@@ -22,7 +22,7 @@ import {
   LogLevel,
   PublicClientApplication,
 } from '@azure/msal-browser';
-import { environment } from '../environments/environment.development';
+import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 
 const apiScopes = [
@@ -80,7 +80,12 @@ export const appConfig: ApplicationConfig = {
         interactionType: InteractionType.Redirect,
         protectedResourceMap: new Map([
           ['https://graph.microsoft.com/v1.0/me', ['user.read']],
-          [`${environment.apiBaseUrl}/*`, apiScopes],
+          [
+            `${
+              new URL(environment.apiContextPath, window.location.origin).href
+            }/*`,
+            apiScopes,
+          ],
         ]),
       } satisfies MsalInterceptorConfiguration,
     },

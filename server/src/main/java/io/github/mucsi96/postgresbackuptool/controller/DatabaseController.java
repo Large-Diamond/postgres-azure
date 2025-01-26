@@ -21,13 +21,13 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @Validated
-@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, path = "/api")
 @RequiredArgsConstructor
 public class DatabaseController {
   private final DatabaseService databaseService;
   private final BackupService backupService;
 
-  @PreAuthorize("hasRole('ROLE_DatabaseBackupsReader') and hasScope('readBackups')")
+  @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupsReader') && hasAuthority('SCOPE_readBackups')")
   @GetMapping("/databases")
   @ResponseBody
   public List<Database> getDatabases() {
@@ -43,7 +43,7 @@ public class DatabaseController {
     }).toList();
   }
 
-  @PreAuthorize("hasRole('ROLE_DatabaseBackupsReader') and hasScope('readBackups')")
+  @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupsReader') and hasAuthority('SCOPE_readBackups')")
   @GetMapping("/database/{database_name}/tables")
   @ResponseBody
   public DatabaseInfo getDatabaseInfo(@PathVariable("database_name") String databaseName) {

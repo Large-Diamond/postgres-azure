@@ -26,13 +26,13 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @Validated
-@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, path = "/api")
 @RequiredArgsConstructor
 public class BackupController {
     private final BackupService backupService;
     private final DatabaseService databaseService;
 
-    @PreAuthorize("hasRole('ROLE_DatabaseBackupCreator') and hasScope('createBackup')")
+    @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupCreator') and hasAuthority('SCOPE_createBackup')")
     @PostMapping("/backup")
     @ResponseBody
     void create(
@@ -51,21 +51,21 @@ public class BackupController {
         });
     }
 
-    @PreAuthorize("hasRole('ROLE_DatabaseBackupCleaner') and hasScope('cleanupBackups')")
+    @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupCleaner') and hasAuthority('SCOPE_cleanupBackups')")
     @PostMapping("/cleanup")
     @ResponseBody
     void cleanup() {
         databaseService.getDatabases().forEach(backupService::cleanup);
     }
 
-    @PreAuthorize("hasRole('ROLE_DatabaseBackupsReader') and hasScope('readBackups')")
+    @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupsReader') and hasAuthority('SCOPE_readBackups')")
     @GetMapping("/database/{database_name}/backups")
     @ResponseBody
     List<Backup> list(@PathVariable("database_name") String databaseName) {
         return backupService.getBackups(databaseName);
     }
 
-    @PreAuthorize("hasRole('ROLE_DatabaseBackupRestorer') and hasScope('restoreBackup')")
+    @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupRestorer') and hasAuthority('SCOPE_restoreBackup')")
     @PostMapping("/database/{database_name}/restore/{key}")
     @ResponseBody
     void restore(@PathVariable("database_name") String databaseName,
@@ -76,7 +76,7 @@ public class BackupController {
         dumpFile.delete();
     }
 
-    @PreAuthorize("hasRole('ROLE_DatabaseBackupsReader') and hasScope('readBackups')")
+    @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupsReader') and hasAuthority('SCOPE_readBackups')")
     @GetMapping("/database/{database_name}/last-backup-time")
     @ResponseBody
     Optional<Instant> lastBackupTime(

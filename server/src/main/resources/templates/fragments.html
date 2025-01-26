@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <script th:fragment="env" type="module">
+      /*<![CDATA[*/
+      window.__env = {
+        apiContextPath: "[[${baseHref}]]".replace(/\/$/, '/api'),
+        tenantId: "[[${tenantId}]]",
+        clientId: "[[${clientId}]]",
+        apiClientId: "[[${apiClientId}]]",
+      };
+      /*]]>*/
+    </script>
+  </body>
+</html>
