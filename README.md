@@ -50,6 +50,7 @@ Simple PostgreSQL backup tool to Azure with UI
 
 - https://flowbite.com/docs/components/tables/
 - https://hslpicker.com/
+- https://learn.microsoft.com/en-us/azure/developer/java/spring-framework/spring-security-support?tabs=SpringCloudAzure5x#accessing-a-resource-server
 
 ### Playwright for Java
 

@@ -31,7 +31,7 @@
     {
       "type": "shell",
       "label": "Build server",
-      "command": "mvn clean install -DskipTests",
+      "command": "mvn clean package -DskipTests",
       "isBackground": true,
       "options": {
         "cwd": "${workspaceFolder}/server"
