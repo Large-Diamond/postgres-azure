@@ -7,8 +7,8 @@ tenantId=$(az keyvault secret show --vault-name p05 --name tenant-id --query val
 
 echo "BLOBSTORAGE_ENDPOINT_URL=$blobStorageEndpointUrl" > .env
 echo "DATABASES_CONFIG_PATH=../scripts/databases_config.json" >> .env
-echo "TENANT_ID=$tenantId" >> .env
-echo "CLIENT_ID=$apiClientId" >> .env
+echo "AZURE_TENANT_ID=$tenantId" >> .env
+echo "AZURE_CLIENT_ID=$apiClientId" >> .env
 echo "UI_CLIENT_ID=$spaClientId" >> .env
 
 echo "NG_APP_TENANT_ID=$tenantId" > client/.env

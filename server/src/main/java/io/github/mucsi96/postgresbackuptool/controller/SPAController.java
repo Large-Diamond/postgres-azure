@@ -17,10 +17,10 @@ import lombok.RequiredArgsConstructor;
 public class SPAController {
     private final Environment environment;
 
-    @Value("${TENANT_ID:}")
+    @Value("${AZURE_TENANT_ID:}")
     private String tenantId;
 
-    @Value("${CLIENT_ID:}")
+    @Value("${AZURE_CLIENT_ID:}")
     private String clientId;
 
     @Value("${UI_CLIENT_ID:}")

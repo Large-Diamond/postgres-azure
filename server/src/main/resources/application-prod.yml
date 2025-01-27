@@ -4,4 +4,4 @@ spring:
       active-directory:
         enabled: true
         credential:
-          client-id: ${CLIENT_ID}
+          client-id: ${AZURE_CLIENT_ID}
