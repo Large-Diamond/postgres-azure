@@ -3,19 +3,19 @@ from utils import cleanup_backups, cleanup_db, extract_table_data, get_db1_table
 
 
 def test_shows_total_record_count_in_db(page: Page):
-    page.goto("http://localhost:8080/db")
+    page.goto("http://localhost:8080")
     page.get_by_text("db1").click()
     expect(page.get_by_role("heading", name="Records")).to_have_text("Records 9")
 
 
 def test_shows_total_table_count_in_db(page: Page):
-    page.goto("http://localhost:8080/db")
+    page.goto("http://localhost:8080")
     page.get_by_text("db1").click()
     expect(page.get_by_role("heading", name="Tables")).to_have_text("Tables 2")
 
 
 def test_shows_tables_and_record_count_in_db(page: Page):
-    page.goto("http://localhost:8080/db")
+    page.goto("http://localhost:8080")
     page.get_by_text("db1").click()
     expect(page.get_by_role("heading", name="Tables")).to_have_text("Tables 2")
     table_data = extract_table_data(page.locator((":text('Tables') + table")))
@@ -27,7 +27,7 @@ def test_shows_tables_and_record_count_in_db(page: Page):
 
 def test_restores_backup(page: Page):
     cleanup_backups()
-    page.goto("http://localhost:8080/db")
+    page.goto("http://localhost:8080")
     page.get_by_role("button", name="Backup").click()
     expect(page.get_by_role("status").filter(has_text="Backup created")).to_be_visible()
     cleanup_db()
@@ -46,7 +46,7 @@ def test_restores_backup(page: Page):
 
 def test_doesnt_restore_excluded_tables(page: Page):
     cleanup_backups()
-    page.goto("http://localhost:8080/db")
+    page.goto("http://localhost:8080")
     page.get_by_role("button", name="Backup").click()
     expect(page.get_by_role("status").filter(has_text="Backup created")).to_be_visible()
     cleanup_db()
