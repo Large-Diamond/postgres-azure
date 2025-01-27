@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { DatabasesComponent } from './databases/databases.component';
 import { DatabaseComponent } from './database/database.component';
 import { MsalGuard, MsalRedirectComponent } from '@azure/msal-angular';
+import { environment } from '../environments/environment';
 
 export const routes: Routes = [
   {
@@ -12,11 +13,11 @@ export const routes: Routes = [
   {
     path: '',
     component: DatabasesComponent,
-    canActivate: [MsalGuard],
+    canActivate: environment.mockAuth ? [] : [MsalGuard],
   },
   {
     path: 'database/:name',
     component: DatabaseComponent,
-    canActivate: [MsalGuard],
+    canActivate: environment.mockAuth ? [] : [MsalGuard],
   },
 ];

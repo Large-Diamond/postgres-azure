@@ -5,6 +5,8 @@ blobstorage:
 databasesConfigPath: ${DATABASES_CONFIG_PATH}
 
 management:
+  server:
+    port: ${SPRING_ACTUATOR_PORT}
   endpoints:
     web:
       exposure:
@@ -14,11 +16,3 @@ management:
       show-details: always
       probes:
         enabled: true
-
-spring:
-  cloud:
-    azure:
-      active-directory:
-        enabled: true
-        credential:
-          client-id: ${CLIENT_ID}

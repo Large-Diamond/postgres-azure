@@ -36,61 +36,66 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()),
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: MsalInterceptor,
-      multi: true,
-    },
-    {
-      provide: MSAL_INSTANCE,
-      useValue: new PublicClientApplication({
-        auth: {
-          clientId: environment.clientId,
-          authority: `https://login.microsoftonline.com/${environment.tenantId}`,
-          redirectUri: '/auth',
-          postLogoutRedirectUri: '/',
-        },
-        cache: {
-          cacheLocation: BrowserCacheLocation.LocalStorage,
-        },
-        system: {
-          allowNativeBroker: false, // Disables WAM Broker
-          loggerOptions: {
-            loggerCallback: (_logLevel: LogLevel, message: string) =>
-              console.log(message),
-            logLevel: LogLevel.Info,
-            piiLoggingEnabled: false,
+    ...(environment.mockAuth
+      ? [provideHttpClient()]
+      : [
+          provideHttpClient(withInterceptorsFromDi()),
+          {
+            provide: HTTP_INTERCEPTORS,
+            useClass: MsalInterceptor,
+            multi: true,
           },
-        },
-      }),
-    },
-    {
-      provide: MSAL_GUARD_CONFIG,
-      useValue: {
-        interactionType: InteractionType.Redirect,
-        authRequest: () => ({
-          scopes: ['user.read', ...apiScopes],
-        }),
-      } satisfies MsalGuardConfiguration,
-    },
-    {
-      provide: MSAL_INTERCEPTOR_CONFIG,
-      useValue: {
-        interactionType: InteractionType.Redirect,
-        protectedResourceMap: new Map([
-          ['https://graph.microsoft.com/v1.0/me', ['user.read']],
-          [
-            `${
-              new URL(environment.apiContextPath, window.location.origin).href
-            }/*`,
-            apiScopes,
-          ],
+          {
+            provide: MSAL_INSTANCE,
+            useValue: new PublicClientApplication({
+              auth: {
+                clientId: environment.clientId,
+                authority: `https://login.microsoftonline.com/${environment.tenantId}`,
+                redirectUri: '/auth',
+                postLogoutRedirectUri: '/',
+              },
+              cache: {
+                cacheLocation: BrowserCacheLocation.LocalStorage,
+              },
+              system: {
+                allowNativeBroker: false, // Disables WAM Broker
+                loggerOptions: {
+                  loggerCallback: (_logLevel: LogLevel, message: string) =>
+                    console.log(message),
+                  logLevel: LogLevel.Info,
+                  piiLoggingEnabled: false,
+                },
+              },
+            }),
+          },
+          {
+            provide: MSAL_GUARD_CONFIG,
+            useValue: {
+              interactionType: InteractionType.Redirect,
+              authRequest: () => ({
+                scopes: ['user.read', ...apiScopes],
+              }),
+            } satisfies MsalGuardConfiguration,
+          },
+          {
+            provide: MSAL_INTERCEPTOR_CONFIG,
+            useValue: {
+              interactionType: InteractionType.Redirect,
+              protectedResourceMap: new Map([
+                ['https://graph.microsoft.com/v1.0/me', ['user.read']],
+                [
+                  `${
+                    new URL(environment.apiContextPath, window.location.origin)
+                      .href
+                  }/*`,
+                  apiScopes,
+                ],
+              ]),
+            } satisfies MsalInterceptorConfiguration,
+          },
+          MsalService,
+          MsalGuard,
+          MsalBroadcastService,
         ]),
-      } satisfies MsalInterceptorConfiguration,
-    },
-    MsalService,
-    MsalGuard,
-    MsalBroadcastService,
   ],
 };
