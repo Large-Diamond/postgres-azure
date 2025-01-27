@@ -19,13 +19,13 @@ def list_without_keys(
 
 
 def test_shows_number_of_backups(page: Page):
-    page.goto("http://localhost:8080/db")
+    page.goto("http://localhost:8080")
     page.get_by_text("db1").click()
     expect(page.get_by_role("heading", name="Backups")).to_have_text("Backups 2")
 
 
 def test_shows_last_backup_time(page: Page):
-    page.goto("http://localhost:8080/db")
+    page.goto("http://localhost:8080")
     page.get_by_text("db1").click()
     expect(page.get_by_role("heading", name="Last backup")).to_have_text(
         "Last backup 10 hours ago"
@@ -33,7 +33,7 @@ def test_shows_last_backup_time(page: Page):
 
 
 def test_shows_backups(page: Page):
-    page.goto("http://localhost:8080/db")
+    page.goto("http://localhost:8080")
     page.get_by_text("db1").click()
     table_data = list_without_keys(
         extract_table_data(page.locator(":text('Backups') + table")), ["Name"]
@@ -59,7 +59,7 @@ def test_shows_backups(page: Page):
 
 def test_creates_backup(page: Page):
     cleanup_backups()
-    page.goto("http://localhost:8080/db")
+    page.goto("http://localhost:8080")
     page.get_by_role("button", name="Backup").click()
     expect(page.get_by_role("status").filter(has_text="Backup created")).to_be_visible()
     page.get_by_text("db1").click()
@@ -79,7 +79,7 @@ def test_creates_backup(page: Page):
 
 def test_creates_backup_with_retention(page: Page):
     cleanup_backups()
-    page.goto("http://localhost:8080/db")
+    page.goto("http://localhost:8080")
     retention_period_input = page.get_by_label("Retention period")
     retention_period_input.fill("7")
     page.get_by_role("button", name="Backup").click()
@@ -129,7 +129,7 @@ def test_cleans_up_outdated_backups(page: Page):
         size=132,
         time_delta=timedelta(days=1),
     )
-    page.goto("http://localhost:8080/db")
+    page.goto("http://localhost:8080")
     page.get_by_role("button", name="Cleanup").click()
     expect(
         page.get_by_role("status").filter(has_text="Cleanup finished")
