@@ -1,7 +1,4 @@
 FROM maven:3-eclipse-temurin-21 AS build-server
-
-ARG SPRING_PROFILES_ACTIVE=prod
-
 WORKDIR /workspace/server
 
 COPY server/pom.xml ./
@@ -25,6 +22,7 @@ FROM bellsoft/liberica-openjre-alpine-musl:22
 VOLUME /tmp
 
 ARG DEPENDENCY=/workspace/server/target/dependency
+ARG SPRING_PROFILES_ACTIVE=prod
 
 RUN apk add postgresql16-client curl
 
