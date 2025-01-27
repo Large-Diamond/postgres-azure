@@ -35,4 +35,6 @@ COPY --from=build-client /workspace/client/dist/index.html /app/templates/index.
 COPY --from=build-client /workspace/client/dist /app/static
 RUN rm /app/static/index.html /app/static/mockServiceWorker.js
 
-ENTRYPOINT ["java", "-cp", "app:app/lib/*", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "io.github.mucsi96.postgresbackuptool.App"]
+ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+
+ENTRYPOINT ["java", "-cp", "app:app/lib/*", "io.github.mucsi96.postgresbackuptool.App"]
