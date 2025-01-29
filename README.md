@@ -1,9 +1,12 @@
 # postgres-azure-backup
+
 Simple PostgreSQL backup tool to Azure with UI
 
 ![PostgreSQL backup tool screenshot](docs/postrgress-backup-tool-1.png)
 
 ## Features
+
+- Supports multiple databases
 - List tables and records of actual database
 - Show last backup time
 - Create backups with retention period
@@ -13,30 +16,48 @@ Simple PostgreSQL backup tool to Azure with UI
 - Can be used without UI as REST API. For example using a cronjob and curl
 - Fully covered with E2E Selenium tests
 - Compatible with PostgreSQL 16
-- Tested with Cloudflare R2 Object Storage
+- Azure cloud native
 
 ## Stack
+
 - Java 21
 - Spring Boot 3
-- Web Components
-- Java AWS SDK 2.x 
+- Angular
+- Azure
 
 ## Required environment variables
-- `AWS_S3_ENDPOINT_URL`
-- `AWS_S3_ACCESS_KEY_ID`
-- `AWS_S3_SECRET_ACCESS_KEY`
-- `AWS_S3_BUCKET`
-- `AWS_S3_REGION`
-- `POSTGRES_HOSTNAME`
-- `POSTGRES_PORT`
-- `POSTGRES_DB`
-- `POSTGRES_USER`
-- `POSTGRES_PASSWORD`
+
+- `AZURE_CLIENT_ID`
+- `AZURE_TENANT_ID`
 - `SPRING_ACTUATOR_PORT`
+- `BLOBSTORAGE_ENDPOINT_URL`
+- `DATABASES_CONFIG_PATH`
+- `UI_CLIENT_ID`
 
-## Optional environment variables
+## Database config file
 
-- `EXCLUDE_TABLES` - Comma-separated list of tables to exclude during backup
+```json
+[
+  {
+    "name": "db1",
+    "host": "db1",
+    "port": 5432,
+    "database": "test",
+    "username": "postgres",
+    "password": "postgres",
+    "excludeTables": ["passwords", "secrets"]
+  },
+  {
+    "name": "db2",
+    "host": "db2",
+    "port": 5432,
+    "database": "test",
+    "username": "postgres",
+    "password": "postgres",
+    "excludeTables": ["passwords", "secrets"]
+  }
+]
+```
 
 ## Resources
 
@@ -51,7 +72,3 @@ Simple PostgreSQL backup tool to Azure with UI
 - https://flowbite.com/docs/components/tables/
 - https://hslpicker.com/
 - https://learn.microsoft.com/en-us/azure/developer/java/spring-framework/spring-security-support?tabs=SpringCloudAzure5x#accessing-a-resource-server
-
-### Playwright for Java
-
-- https://playwright.dev/java/
