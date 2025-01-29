@@ -59,6 +59,30 @@ Simple PostgreSQL backup tool to Azure with UI
 ]
 ```
 
+## Deployment with Helm
+
+```bash
+host=$(...)
+blobStorageEndpointUrl=$(...)
+apiClientId=$(...)
+spaClientId=$(...)
+
+helm repo add mucsi96 https://mucsi96.github.io/k8s-helm-charts
+helm install mucsi96/spring-app \
+    --namespace backup \
+    --set image=mucsi96/postgres-azure-backup:latest \
+    --set host=backup.$host \
+    --set clientId=$apiClientId \
+    --set serviceAccountName=postgres-azure-backup \
+    --set env.BLOBSTORAGE_ENDPOINT_URL=$blobStorageEndpointUrl \
+    --set env.DATABASES_CONFIG_PATH=/app/databases_config.json \
+    --set env.UI_CLIENT_ID=$spaClientId \
+    --set configFile[0].name=databases_config.json \
+    --set configFile[0].mountPath=/app/databases_config.json \
+    --set "configFile[0].data=$(cat scripts/databases_config.json | base64)" \
+    --wait
+```
+
 ## Resources
 
 - https://github.com/kananindzya/hello-world-aws-sdk-r2/blob/master/src/main/java/com/example/aws/api/r2/App.java
