@@ -9,7 +9,9 @@ Simple PostgreSQL backup tool to Azure with UI
 - Supports multiple databases
 - List tables and records of actual database
 - Show last backup time
-- Create backups with retention period persisted in Azure Blob Storage
+- Creates backups with retention period
+- Based on `pg_dump` and `pg_restore` official PostgreSQL utilities
+- Persists dumps in Azure Blob Storage
 - Cleanup expired backups
 - Restore backups
 - Exclude tables from backup
@@ -26,6 +28,7 @@ Simple PostgreSQL backup tool to Azure with UI
 - Angular
 - Microsoft Authentication Library (MSAL)
 - Azure
+- PostgreSQL 16 client
 
 ## Required environment variables
 
@@ -48,7 +51,7 @@ Simple PostgreSQL backup tool to Azure with UI
     "username": "postgres",
     "password": "postgres",
     "excludeTables": ["passwords", "secrets"],
-    "dumpFormat": "plain"
+    "dumpFormat": "custom"
   },
   {
     "name": "db2",
@@ -58,15 +61,14 @@ Simple PostgreSQL backup tool to Azure with UI
     "username": "postgres",
     "password": "postgres",
     "excludeTables": ["passwords", "secrets"],
-    "dumpFormat": "custom"
+    "dumpFormat": "tar"
   }
 ]
 ```
 
 ## Dump formats
 
-- `plain` - Output a plain-text SQL script file (the default).
-- `custom` - Output a custom-format archive suitable for input into pg_restore. Together with the directory output format, this is the most flexible output format in that it allows manual selection and reordering of archived items during restore. This format is also compressed by default.
+- `custom` (default) - Output a custom-format archive suitable for input into pg_restore. Together with the directory output format, this is the most flexible output format in that it allows manual selection and reordering of archived items during restore. This format is also compressed by default.
 - `directory` - Output a directory-format archive suitable for input into pg_restore. This will create a directory with one file for each table and large object being dumped, plus a so-called Table of Contents file describing the dumped objects in a machine-readable format that pg_restore can read. A directory format archive can be manipulated with standard Unix tools; for example, files in an uncompressed archive can be compressed with the gzip, lz4, or zstd tools. This format is compressed by default using gzip and also supports parallel dumps.
 - `tar` - Output a tar-format archive suitable for input into pg_restore. The tar format is compatible with the directory format: extracting a tar-format archive produces a valid directory-format archive. However, the tar format does not support compression. Also, when using tar format the relative order of table data items cannot be changed during restore.
 
