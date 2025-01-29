@@ -1,7 +1,6 @@
 package io.github.mucsi96.postgresbackuptool.model;
 
 public enum DumpFormat {
-    PLAIN("plain"),
     CUSTOM("custom"),
     DIRECTORY("directory"),
     TAR("tar");

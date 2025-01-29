@@ -79,7 +79,7 @@ public class DatabaseConfiguration {
     }
 
     public DumpFormat getDumpFormat() {
-        return dumpFormat == null ? DumpFormat.PLAIN : dumpFormat.orElse(DumpFormat.PLAIN);
+        return dumpFormat == null ? DumpFormat.CUSTOM : dumpFormat.orElse(DumpFormat.CUSTOM);
     }
 
     public void setDumpFormat(Optional<DumpFormat> dumpFormat) {
