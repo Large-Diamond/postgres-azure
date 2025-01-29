@@ -24,6 +24,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 import io.github.mucsi96.postgresbackuptool.configuration.DatabaseConfiguration;
 import io.github.mucsi96.postgresbackuptool.model.DatabaseInfo;
+import io.github.mucsi96.postgresbackuptool.model.DumpFormat;
 import io.github.mucsi96.postgresbackuptool.model.Table;
 
 @Service
@@ -42,7 +43,11 @@ public class DatabaseService {
         this.dateTimeFormatter = dateTimeFormatter;
     }
 
-    public List<String> getDatabases() {
+    public List<DatabaseConfiguration> getDatabase() {
+        return databases;
+    }
+
+    public List<String> getDatabaseNames() {
         return databases.stream().map(DatabaseConfiguration::getName).toList();
     }
 
@@ -79,8 +84,8 @@ public class DatabaseService {
 
     }
 
-    public File createDump(String databaseName, int retentionPeriod)
-            throws IOException, InterruptedException {
+    public File createDump(String databaseName, int retentionPeriod,
+            DumpFormat format) throws IOException, InterruptedException {
         DatabaseConfiguration databaseConfiguration = getDatabaseConfiguration(
                 databaseName);
         String timeString = dateTimeFormatter.format(Instant.now());
@@ -90,7 +95,7 @@ public class DatabaseService {
         List<String> commands = Stream
                 .of(List.of("pg_dump", "--dbname",
                         databaseConfiguration.getConnectionString(), "--format",
-                        "c", "--file", filename),
+                        format.getValue(), "--file", filename),
                         databaseConfiguration.getExcludeTables()
                                 .orElse(List.of()).stream()
                                 .flatMap(table -> List

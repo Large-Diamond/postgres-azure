@@ -38,11 +38,11 @@ public class BackupController {
     void create(
             @RequestParam("retention_period") @Min(1) @Max(356) int retentionPeriod)
             throws IOException, InterruptedException {
-        databaseService.getDatabases().forEach(databaseName -> {
+        databaseService.getDatabase().forEach(databaseConfiguration -> {
             try {
-                File dumpFile = databaseService.createDump(databaseName,
-                        retentionPeriod);
-                backupService.createBackup(databaseName, dumpFile);
+                File dumpFile = databaseService.createDump(databaseConfiguration.getName(),
+                        retentionPeriod, databaseConfiguration.getDumpFormat());
+                backupService.createBackup(databaseConfiguration.getName(), dumpFile);
 
                 dumpFile.delete();
             } catch (IOException | InterruptedException e) {
@@ -55,7 +55,7 @@ public class BackupController {
     @PostMapping("/cleanup")
     @ResponseBody
     void cleanup() {
-        databaseService.getDatabases().forEach(backupService::cleanup);
+        databaseService.getDatabaseNames().forEach(backupService::cleanup);
     }
 
     @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupsReader') and hasAuthority('SCOPE_readBackups')")
