@@ -11,6 +11,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.github.mucsi96.postgresbackuptool.model.DumpFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,6 +39,8 @@ public class DatabaseConfiguration {
     private String password;
 
     private Optional<List<String>> excludeTables;
+
+    private Optional<DumpFormat> dumpFormat;
 
     DatabaseConfiguration() {
     }
@@ -73,5 +76,13 @@ public class DatabaseConfiguration {
 
     public void setExcludeTables(Optional<List<String>> excludeTables) {
         this.excludeTables = excludeTables;
+    }
+
+    public DumpFormat getDumpFormat() {
+        return dumpFormat == null ? DumpFormat.PLAIN : dumpFormat.orElse(DumpFormat.PLAIN);
+    }
+
+    public void setDumpFormat(Optional<DumpFormat> dumpFormat) {
+        this.dumpFormat = dumpFormat;
     }
 }

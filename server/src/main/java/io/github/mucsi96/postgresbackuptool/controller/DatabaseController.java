@@ -31,7 +31,7 @@ public class DatabaseController {
   @GetMapping("/databases")
   @ResponseBody
   public List<Database> getDatabases() {
-    return databaseService.getDatabases().stream().map(databaseName -> {
+    return databaseService.getDatabaseNames().stream().map(databaseName -> {
       DatabaseInfo databaseInfo = databaseService.getDatabaseInfo(databaseName);
       Optional<Instant> lastBackupTime = backupService
           .getLastBackupTime(databaseName);
