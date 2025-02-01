@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e  # Exit immediately if a command exits with a non-zero status
+
 blobStorageEndpointUrl=$(az storage account show --name ibari --resource-group ibari --query "primaryEndpoints.blob" --output tsv)
 spaClientId=$(az keyvault secret show --vault-name p05 --name backup-spa-client-id --query value -o tsv)
 apiClientId=$(az keyvault secret show --vault-name p05 --name backup-api-client-id --query value -o tsv)
