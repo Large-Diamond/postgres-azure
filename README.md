@@ -2,7 +2,8 @@
 
 Simple PostgreSQL backup tool to Azure with UI
 
-![PostgreSQL backup tool screenshot](docs/postrgress-backup-tool-1.png)
+![PostgreSQL backup tool screenshot 1](docs/postrgress-backup-tool-1.png)
+![PostgreSQL backup tool screenshot 2](docs/postrgress-backup-tool-2.png)
 
 ## Features
 
