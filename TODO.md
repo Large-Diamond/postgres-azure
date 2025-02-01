@@ -4,4 +4,3 @@
 - add possibility to additionaly create plain dumps
 - update images in readme
 - show dump format on UI
-- support postgres schemas

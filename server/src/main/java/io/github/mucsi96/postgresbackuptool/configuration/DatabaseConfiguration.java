@@ -33,6 +33,9 @@ public class DatabaseConfiguration {
     private String database;
 
     @JsonProperty(required = true)
+    private String schema;
+
+    @JsonProperty(required = true)
     private String username;
 
     @JsonProperty(required = true)

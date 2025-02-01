@@ -71,7 +71,7 @@ def test_creates_backup(page: Page):
         {
             "": "Restore",
             "Records": "9",
-            "Size": "1.7 KB",
+            "Size": "1.9 KB",
             "Retention": "1 day",
         }
     ]
@@ -93,7 +93,7 @@ def test_creates_backup_with_retention(page: Page):
         {
             "": "Restore",
             "Records": "9",
-            "Size": "1.7 KB",
+            "Size": "1.9 KB",
             "Retention": "7 days",
         }
     ]

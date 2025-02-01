@@ -4,6 +4,7 @@
     "host": "db1",
     "port": 5432,
     "database": "test",
+    "schema": "test1",
     "username": "postgres",
     "password": "postgres",
     "excludeTables": ["passwords", "secrets"]
@@ -13,6 +14,7 @@
     "host": "db2",
     "port": 5432,
     "database": "test",
+    "schema": "test2",
     "username": "postgres",
     "password": "postgres",
     "excludeTables": ["passwords", "secrets"]
