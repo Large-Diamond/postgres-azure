@@ -70,21 +70,8 @@ def cleanup_db():
     cur1 = conn1.cursor()
     cur2 = conn2.cursor()
 
-    cur1.execute(
-        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
-    )
-
-    table_names1 = [table[0] for table in cur1.fetchall()]
-    for table_name in table_names1:
-        cur1.execute(f"DROP TABLE {table_name}")
-
-    cur2.execute(
-        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
-    )
-
-    table_names2 = [table[0] for table in cur2.fetchall()]
-    for table_name in table_names2:
-        cur2.execute(f"DROP TABLE {table_name}")
+    cur1.execute("DROP SCHEMA IF EXISTS test1 CASCADE")
+    cur2.execute("DROP SCHEMA IF EXISTS test2 CASCADE")
 
     conn1.commit()
     conn2.commit()
@@ -112,55 +99,57 @@ def populate_db():
 
     cur1.execute(
         """
-        CREATE TABLE fruites (NAME VARCHAR(20));
-        INSERT INTO fruites (NAME) VALUES ('Apple');
-        INSERT INTO fruites (NAME) VALUES ('Orange');
-        INSERT INTO fruites (NAME) VALUES ('Banana');
-        INSERT INTO fruites (NAME) VALUES ('Rasberry');
-        CREATE TABLE vegetables (NAME VARCHAR(20));
-        INSERT INTO vegetables (NAME) VALUES ('Carrot');
-        INSERT INTO vegetables (NAME) VALUES ('Potato');
-        INSERT INTO vegetables (NAME) VALUES ('Spinach');
-        INSERT INTO vegetables (NAME) VALUES ('Broccoli');
-        INSERT INTO vegetables (NAME) VALUES ('Tomato');
-        CREATE TABLE passwords (NAME VARCHAR(20));
-        INSERT INTO passwords (NAME) VALUES ('123');
-        INSERT INTO passwords (NAME) VALUES ('123456');
-        INSERT INTO passwords (NAME) VALUES ('abc');
-        INSERT INTO passwords (NAME) VALUES ('abcd');
-        CREATE TABLE secrets (NAME VARCHAR(20));
-        INSERT INTO secrets (NAME) VALUES ('a');
-        INSERT INTO secrets (NAME) VALUES ('b');
-        INSERT INTO secrets (NAME) VALUES ('c');
+        CREATE SCHEMA test1;
+        CREATE TABLE test1.fruites (NAME VARCHAR(20));
+        INSERT INTO test1.fruites (NAME) VALUES ('Apple');
+        INSERT INTO test1.fruites (NAME) VALUES ('Orange');
+        INSERT INTO test1.fruites (NAME) VALUES ('Banana');
+        INSERT INTO test1.fruites (NAME) VALUES ('Rasberry');
+        CREATE TABLE test1.vegetables (NAME VARCHAR(20));
+        INSERT INTO test1.vegetables (NAME) VALUES ('Carrot');
+        INSERT INTO test1.vegetables (NAME) VALUES ('Potato');
+        INSERT INTO test1.vegetables (NAME) VALUES ('Spinach');
+        INSERT INTO test1.vegetables (NAME) VALUES ('Broccoli');
+        INSERT INTO test1.vegetables (NAME) VALUES ('Tomato');
+        CREATE TABLE test1.passwords (NAME VARCHAR(20));
+        INSERT INTO test1.passwords (NAME) VALUES ('123');
+        INSERT INTO test1.passwords (NAME) VALUES ('123456');
+        INSERT INTO test1.passwords (NAME) VALUES ('abc');
+        INSERT INTO test1.passwords (NAME) VALUES ('abcd');
+        CREATE TABLE test1.secrets (NAME VARCHAR(20));
+        INSERT INTO test1.secrets (NAME) VALUES ('a');
+        INSERT INTO test1.secrets (NAME) VALUES ('b');
+        INSERT INTO test1.secrets (NAME) VALUES ('c');
     """
     )
     cur2.execute(
         """
-        CREATE TABLE animals (name VARCHAR(20));
-        INSERT INTO animals (name) VALUES ('Dog');
-        INSERT INTO animals (name) VALUES ('Cat');
-        INSERT INTO animals (name) VALUES ('Bird');
-        INSERT INTO animals (name) VALUES ('Fish');
-        INSERT INTO animals (name) VALUES ('Rabbit');
-        INSERT INTO animals (name) VALUES ('Turtle');
-        CREATE TABLE countries (name VARCHAR(20));
-        INSERT INTO countries (name) VALUES ('USA');
-        INSERT INTO countries (name) VALUES ('Canada');
-        INSERT INTO countries (name) VALUES ('Germany');
-        INSERT INTO countries (name) VALUES ('Japan');
-        INSERT INTO countries (name) VALUES ('Australia');
-        INSERT INTO countries (name) VALUES ('Brazil');
-        CREATE TABLE books (title VARCHAR(50));
-        INSERT INTO books (title) VALUES ('Harry Potter');
-        INSERT INTO books (title) VALUES ('To Kill a Mockingbird');
-        INSERT INTO books (title) VALUES ('The Great Gatsby');
-        INSERT INTO books (title) VALUES ('1984');
-        INSERT INTO books (title) VALUES ('Pride and Prejudice');
-        CREATE TABLE secrets (secret VARCHAR(20));
-        INSERT INTO secrets (secret) VALUES ('alpha');
-        INSERT INTO secrets (secret) VALUES ('bravo');
-        INSERT INTO secrets (secret) VALUES ('charlie');
-        INSERT INTO secrets (secret) VALUES ('delta');
+        CREATE SCHEMA test2;
+        CREATE TABLE test2.animals (name VARCHAR(20));
+        INSERT INTO test2.animals (name) VALUES ('Dog');
+        INSERT INTO test2.animals (name) VALUES ('Cat');
+        INSERT INTO test2.animals (name) VALUES ('Bird');
+        INSERT INTO test2.animals (name) VALUES ('Fish');
+        INSERT INTO test2.animals (name) VALUES ('Rabbit');
+        INSERT INTO test2.animals (name) VALUES ('Turtle');
+        CREATE TABLE test2.countries (name VARCHAR(20));
+        INSERT INTO test2.countries (name) VALUES ('USA');
+        INSERT INTO test2.countries (name) VALUES ('Canada');
+        INSERT INTO test2.countries (name) VALUES ('Germany');
+        INSERT INTO test2.countries (name) VALUES ('Japan');
+        INSERT INTO test2.countries (name) VALUES ('Australia');
+        INSERT INTO test2.countries (name) VALUES ('Brazil');
+        CREATE TABLE test2.books (title VARCHAR(50));
+        INSERT INTO test2.books (title) VALUES ('Harry Potter');
+        INSERT INTO test2.books (title) VALUES ('To Kill a Mockingbird');
+        INSERT INTO test2.books (title) VALUES ('The Great Gatsby');
+        INSERT INTO test2.books (title) VALUES ('1984');
+        INSERT INTO test2.books (title) VALUES ('Pride and Prejudice');
+        CREATE TABLE test2.secrets (secret VARCHAR(20));
+        INSERT INTO test2.secrets (secret) VALUES ('alpha');
+        INSERT INTO test2.secrets (secret) VALUES ('bravo');
+        INSERT INTO test2.secrets (secret) VALUES ('charlie');
+        INSERT INTO test2.secrets (secret) VALUES ('delta');
     """
     )
 
@@ -180,7 +169,7 @@ def get_db1_tables():
     )
     cur1 = conn1.cursor()
     cur1.execute(
-        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
+        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'test1'"
     )
     tables = [table[0] for table in cur1.fetchall()]
     cur1.close()

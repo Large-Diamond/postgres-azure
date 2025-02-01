@@ -63,7 +63,8 @@ public class DatabaseService {
                 databaseName);
         List<Map<String, Object>> result = databaseConfiguration
                 .getJdbcTemplate().queryForList(
-                        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'");
+                        "SELECT table_name FROM information_schema.tables WHERE table_schema = ?",
+                        databaseConfiguration.getSchema());
 
         List<Table> tables = result.stream()
                 .filter(table -> !databaseConfiguration.getExcludeTables()
@@ -92,15 +93,18 @@ public class DatabaseService {
         String filename = String.format("%s.%s.%s.pgdump", timeString,
                 getDatabaseInfo(databaseName).getTotalRowCount(),
                 retentionPeriod);
-        List<String> commands = Stream
-                .of(List.of("pg_dump", "--dbname",
-                        databaseConfiguration.getConnectionString(), "--format",
+        List<String> commands = Stream.of(
+                List.of("pg_dump", "--dbname",
+                        databaseConfiguration.getConnectionString(), "--schema",
+                        databaseConfiguration.getSchema(), "--format",
                         format.getValue(), "--file", filename),
-                        databaseConfiguration.getExcludeTables()
-                                .orElse(List.of()).stream()
-                                .flatMap(table -> List
-                                        .of("--exclude-table", table).stream())
-                                .toList())
+                databaseConfiguration.getExcludeTables().orElse(List.of())
+                        .stream().flatMap(table -> {
+                            String fullTableName = databaseConfiguration
+                                    .getSchema() + "." + table;
+                            return List.of("--exclude-table", fullTableName)
+                                    .stream();
+                        }).toList())
                 .flatMap(x -> x.stream()).toList();
 
         System.out.println("Creating dump: " + String.join(", ", commands));
@@ -166,8 +170,10 @@ public class DatabaseService {
     private int getTableRowCount(String databaseName, String tableName) {
         DatabaseConfiguration databaseConfiguration = getDatabaseConfiguration(
                 databaseName);
+        String fullTableName = databaseConfiguration.getSchema() + "."
+                + tableName;
         Integer count = databaseConfiguration.getJdbcTemplate().queryForObject(
-                "SELECT COUNT(*) FROM " + tableName, Integer.class);
+                "SELECT COUNT(*) FROM " + fullTableName, Integer.class);
 
         return count != null ? count : 0;
     }
