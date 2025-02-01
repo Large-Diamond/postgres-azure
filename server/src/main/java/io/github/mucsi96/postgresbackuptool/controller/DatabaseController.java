@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.mucsi96.postgresbackuptool.configuration.DatabaseConfiguration;
 import io.github.mucsi96.postgresbackuptool.model.Database;
 import io.github.mucsi96.postgresbackuptool.model.DatabaseInfo;
 import io.github.mucsi96.postgresbackuptool.service.BackupService;
@@ -24,29 +25,35 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, path = "/api")
 @RequiredArgsConstructor
 public class DatabaseController {
-  private final DatabaseService databaseService;
-  private final BackupService backupService;
+    private final DatabaseService databaseService;
+    private final BackupService backupService;
 
-  @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupsReader') && hasAuthority('SCOPE_readBackups')")
-  @GetMapping("/databases")
-  @ResponseBody
-  public List<Database> getDatabases() {
-    return databaseService.getDatabaseNames().stream().map(databaseName -> {
-      DatabaseInfo databaseInfo = databaseService.getDatabaseInfo(databaseName);
-      Optional<Instant> lastBackupTime = backupService
-          .getLastBackupTime(databaseName);
-      return Database.builder().name(databaseName)
-          .totalRowCount(databaseInfo.getTotalRowCount())
-          .tablesCount(databaseInfo.getTables().size())
-          .backupsCount(backupService.getBackups(databaseName).size())
-          .lastBackupTime(lastBackupTime.orElse(null)).build();
-    }).toList();
-  }
+    @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupsReader') && hasAuthority('SCOPE_readBackups')")
+    @GetMapping("/databases")
+    @ResponseBody
+    public List<Database> getDatabases() {
+        return databaseService.getDatabaseNames().stream().map(databaseName -> {
+            DatabaseInfo databaseInfo = databaseService
+                    .getDatabaseInfo(databaseName);
+            DatabaseConfiguration databaseConfiguration = databaseService
+                    .getDatabaseConfiguration(databaseName);
+            Optional<Instant> lastBackupTime = backupService.getLastBackupTime(
+                    databaseConfiguration.getBackupContainerName());
+            return Database.builder().name(databaseName)
+                    .totalRowCount(databaseInfo.getTotalRowCount())
+                    .tablesCount(databaseInfo.getTables().size())
+                    .backupsCount(backupService.getBackups(
+                            databaseConfiguration.getBackupContainerName())
+                            .size())
+                    .lastBackupTime(lastBackupTime.orElse(null)).build();
+        }).toList();
+    }
 
-  @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupsReader') and hasAuthority('SCOPE_readBackups')")
-  @GetMapping("/database/{database_name}/tables")
-  @ResponseBody
-  public DatabaseInfo getDatabaseInfo(@PathVariable("database_name") String databaseName) {
-    return databaseService.getDatabaseInfo(databaseName);
-  }
+    @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupsReader') and hasAuthority('SCOPE_readBackups')")
+    @GetMapping("/database/{database_name}/tables")
+    @ResponseBody
+    public DatabaseInfo getDatabaseInfo(
+            @PathVariable("database_name") String databaseName) {
+        return databaseService.getDatabaseInfo(databaseName);
+    }
 }

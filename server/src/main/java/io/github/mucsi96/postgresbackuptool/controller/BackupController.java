@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.mucsi96.postgresbackuptool.configuration.DatabaseConfiguration;
 import io.github.mucsi96.postgresbackuptool.model.Backup;
 import io.github.mucsi96.postgresbackuptool.service.BackupService;
 import io.github.mucsi96.postgresbackuptool.service.DatabaseService;
@@ -38,11 +39,14 @@ public class BackupController {
     void create(
             @RequestParam("retention_period") @Min(1) @Max(356) int retentionPeriod)
             throws IOException, InterruptedException {
-        databaseService.getDatabase().forEach(databaseConfiguration -> {
+        databaseService.getDatabases().forEach(databaseConfiguration -> {
             try {
-                File dumpFile = databaseService.createDump(databaseConfiguration.getName(),
-                        retentionPeriod, databaseConfiguration.getDumpFormat());
-                backupService.createBackup(databaseConfiguration.getName(), dumpFile);
+                File dumpFile = databaseService.createDump(
+                        databaseConfiguration.getName(), retentionPeriod,
+                        databaseConfiguration.getDumpFormat());
+                backupService.createBackup(
+                        databaseConfiguration.getBackupContainerName(),
+                        dumpFile);
 
                 dumpFile.delete();
             } catch (IOException | InterruptedException e) {
@@ -55,14 +59,19 @@ public class BackupController {
     @PostMapping("/cleanup")
     @ResponseBody
     void cleanup() {
-        databaseService.getDatabaseNames().forEach(backupService::cleanup);
+        databaseService.getDatabases().stream()
+                .map(DatabaseConfiguration::getBackupContainerName)
+                .forEach(backupService::cleanup);
     }
 
     @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupsReader') and hasAuthority('SCOPE_readBackups')")
     @GetMapping("/database/{database_name}/backups")
     @ResponseBody
     List<Backup> list(@PathVariable("database_name") String databaseName) {
-        return backupService.getBackups(databaseName);
+        DatabaseConfiguration databaseConfiguration = databaseService
+                .getDatabaseConfiguration(databaseName);
+        return backupService
+                .getBackups(databaseConfiguration.getBackupContainerName());
     }
 
     @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupRestorer') and hasAuthority('SCOPE_restoreBackup')")
@@ -70,7 +79,10 @@ public class BackupController {
     @ResponseBody
     void restore(@PathVariable("database_name") String databaseName,
             @PathVariable String key) throws IOException, InterruptedException {
-        File dumpFile = backupService.downloadBackup(databaseName, key);
+        DatabaseConfiguration databaseConfiguration = databaseService
+                .getDatabaseConfiguration(databaseName);
+        File dumpFile = backupService.downloadBackup(
+                databaseConfiguration.getBackupContainerName(), key);
         databaseService.restoreDump(databaseName, dumpFile);
 
         dumpFile.delete();
@@ -81,6 +93,9 @@ public class BackupController {
     @ResponseBody
     Optional<Instant> lastBackupTime(
             @PathVariable("database_name") String databaseName) {
-        return backupService.getLastBackupTime(databaseName);
+        DatabaseConfiguration databaseConfiguration = databaseService
+                .getDatabaseConfiguration(databaseName);
+        return backupService.getLastBackupTime(
+                databaseConfiguration.getBackupContainerName());
     }
 }

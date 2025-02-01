@@ -36,6 +36,9 @@ public class DatabaseConfiguration {
     private String schema;
 
     @JsonProperty(required = true)
+    private String backupContainerName;
+
+    @JsonProperty(required = true)
     private String username;
 
     @JsonProperty(required = true)
