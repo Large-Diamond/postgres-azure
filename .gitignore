@@ -6,6 +6,7 @@ target
 screenshots
 
 .ansible/
+.kube/
 
 node_modules
 
