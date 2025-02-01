@@ -102,28 +102,28 @@ def test_creates_backup_with_retention(page: Page):
 def test_cleans_up_outdated_backups(page: Page):
     cleanup_backups()
     create_backup(
-        db_name="db1",
+        container_name="db1-backup",
         rowsCount=1,
         retention=31,
         size=132,
         time_delta=timedelta(days=30),
     )
     create_backup(
-        db_name="db1",
+        container_name="db1-backup",
         rowsCount=2,
         retention=7,
         size=132,
         time_delta=timedelta(days=7),
     )
     create_backup(
-        db_name="db1",
+        container_name="db1-backup",
         rowsCount=3,
         retention=1,
         size=132,
         time_delta=timedelta(days=1),
     )
     create_backup(
-        db_name="db1",
+        container_name="db1-backup",
         rowsCount=4,
         retention=2,
         size=132,

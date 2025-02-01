@@ -43,7 +43,7 @@ public class DatabaseService {
         this.dateTimeFormatter = dateTimeFormatter;
     }
 
-    public List<DatabaseConfiguration> getDatabase() {
+    public List<DatabaseConfiguration> getDatabases() {
         return databases;
     }
 
@@ -51,7 +51,7 @@ public class DatabaseService {
         return databases.stream().map(DatabaseConfiguration::getName).toList();
     }
 
-    DatabaseConfiguration getDatabaseConfiguration(String databaseName) {
+    public DatabaseConfiguration getDatabaseConfiguration(String databaseName) {
         return databases.stream()
                 .filter(db -> db.getName().equals(databaseName)).findFirst()
                 .orElseThrow(() -> new RuntimeException("Database with name "

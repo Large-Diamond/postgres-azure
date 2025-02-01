@@ -28,9 +28,9 @@ public class BackupService {
     this.dateTimeFormatter = dateTimeFormatter;
   }
 
-  public List<Backup> getBackups(String databaseName) {
+  public List<Backup> getBackups(String containerName) {
     BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(databaseName);
+        .getBlobContainerClient(containerName);
 
     if (!blobContainerClient.exists()) {
       return Collections.emptyList();
@@ -47,9 +47,9 @@ public class BackupService {
         .toList();
   }
 
-  public void createBackup(String databaseName, File dumpFile) {
+  public void createBackup(String containerName, File dumpFile) {
     BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(databaseName);
+        .getBlobContainerClient(containerName);
 
     if (!blobContainerClient.exists()) {
       blobContainerClient.create();
@@ -59,9 +59,9 @@ public class BackupService {
         .uploadFromFile(dumpFile.getAbsolutePath());
   }
 
-  public File downloadBackup(String databaseName, String key) throws IOException {
+  public File downloadBackup(String containerName, String key) throws IOException {
     BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(databaseName);
+        .getBlobContainerClient(containerName);
 
     if (!blobContainerClient.exists()) {
       throw new IOException("Container does not exist");
@@ -72,9 +72,9 @@ public class BackupService {
     return new File(key);
   }
 
-  public void cleanup(String databaseName) {
+  public void cleanup(String containerName) {
     BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(databaseName);
+        .getBlobContainerClient(containerName);
 
     if (!blobContainerClient.exists()) {
       return;
@@ -85,8 +85,8 @@ public class BackupService {
             .getBlobClient(blobItem.getName()).delete());
   }
 
-  public Optional<Instant> getLastBackupTime(String databaseName) {
-    return getBackups(databaseName).stream().findFirst()
+  public Optional<Instant> getLastBackupTime(String containerName) {
+    return getBackups(containerName).stream().findFirst()
         .map(backup -> backup.getLastModified());
   }
 

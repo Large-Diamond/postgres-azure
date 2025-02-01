@@ -30,9 +30,9 @@ def extract_table_data(table: Locator) -> List[Dict[str, str]]:
 
 
 def create_backup(
-    db_name: str, rowsCount: int, retention: int, size: int, time_delta: timedelta
+    container_name: str, rowsCount: int, retention: int, size: int, time_delta: timedelta
 ):
-    container_client = blob_service_client.get_container_client(db_name)
+    container_client = blob_service_client.get_container_client(container_name)
     if not container_client.exists():
         container_client.create_container()
     current_time = datetime.now(timezone.utc)
