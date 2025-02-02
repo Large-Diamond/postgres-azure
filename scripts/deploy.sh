@@ -12,7 +12,7 @@ helm upgrade postgres-azure-backup mucsi96/spring-app \
     --force \
     --kubeconfig .kube/config \
     --namespace backup \
-    --set image=mucsi96/postgres-azure-backup:22 \
+    --set image=mucsi96/postgres-azure-backup:24 \
     --set host=backup.$host \
     --set clientId=$apiClientId \
     --set serviceAccountName=postgres-azure-backup \
