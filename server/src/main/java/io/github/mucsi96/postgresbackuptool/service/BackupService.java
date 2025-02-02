@@ -4,19 +4,20 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.time.OffsetDateTime;
 
 import org.springframework.stereotype.Service;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
-import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
+import com.azure.storage.blob.models.UserDelegationKey;
 import com.azure.storage.blob.sas.BlobSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 
 import io.github.mucsi96.postgresbackuptool.model.Backup;
 
@@ -90,10 +91,11 @@ public class BackupService {
                 .setReadPermission(true);
         OffsetDateTime expiryTime = OffsetDateTime.now().plusMinutes(2);
         BlobServiceSasSignatureValues values = new BlobServiceSasSignatureValues(
-                expiryTime, permission);
+                expiryTime, permission).setStartTime(OffsetDateTime.now());
 
-        String sasToken = blobContainerClient.getBlobClient(key)
-                .generateSas(values);
+        UserDelegationKey userDelegationKey = blobServiceClient.getUserDelegationKey(OffsetDateTime.now(), expiryTime);
+
+        String sasToken = blobContainerClient.getBlobClient(key).generateUserDelegationSas(values, userDelegationKey);
         return blobContainerClient.getBlobClient(key).getBlobUrl() + "?"
                 + sasToken;
     }
