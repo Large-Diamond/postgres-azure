@@ -1,5 +1,5 @@
 - migrate to angular 19 and resource
 - drop @mucsi96/ui-elements in favor of angular/material
-- add possibility to download a dump on UI
 - add possibility to additionaly create plain dumps
 - show dump format on UI
+- deploy backup job with help

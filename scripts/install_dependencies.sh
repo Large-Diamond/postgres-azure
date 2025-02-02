@@ -12,7 +12,8 @@ echo "DATABASES_CONFIG_PATH=../scripts/databases_config.json" >> .env
 echo "AZURE_TENANT_ID=$tenantId" >> .env
 echo "AZURE_CLIENT_ID=$apiClientId" >> .env
 echo "UI_CLIENT_ID=$spaClientId" >> .env
-
+echo "SPRING_ACTUATOR_PORT=8082" >> .env
+echo "SPRING_PROFILES_ACTIVE=prod" >> .env
 echo "NG_APP_TENANT_ID=$tenantId" > client/.env
 echo "NG_APP_CLIENT_ID=$spaClientId" >> client/.env
 echo "NG_APP_API_CLIENT_ID=$apiClientId" >> client/.env

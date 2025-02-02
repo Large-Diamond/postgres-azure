@@ -30,6 +30,7 @@ const apiScopes = [
   'createBackup',
   'cleanupBackups',
   'restoreBackup',
+  'downloadBackup'
 ].map((scope) => `${environment.apiClientId}/${scope}`);
 
 export const appConfig: ApplicationConfig = {
