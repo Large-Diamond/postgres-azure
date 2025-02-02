@@ -8,104 +8,130 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.time.OffsetDateTime;
 
 import org.springframework.stereotype.Service;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
+import com.azure.storage.blob.sas.BlobSasPermission;
 
 import io.github.mucsi96.postgresbackuptool.model.Backup;
 
 @Service
 public class BackupService {
-  private final BlobServiceClient blobServiceClient;
-  private final DateTimeFormatter dateTimeFormatter;
+    private final BlobServiceClient blobServiceClient;
+    private final DateTimeFormatter dateTimeFormatter;
 
-  public BackupService(BlobServiceClient blobServiceClient,
-      DateTimeFormatter dateTimeFormatter) {
-    this.blobServiceClient = blobServiceClient;
-    this.dateTimeFormatter = dateTimeFormatter;
-  }
-
-  public List<Backup> getBackups(String containerName) {
-    BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(containerName);
-
-    if (!blobContainerClient.exists()) {
-      return Collections.emptyList();
+    public BackupService(BlobServiceClient blobServiceClient,
+            DateTimeFormatter dateTimeFormatter) {
+        this.blobServiceClient = blobServiceClient;
+        this.dateTimeFormatter = dateTimeFormatter;
     }
 
-    return blobContainerClient.listBlobs().stream()
-        .map(s3Object -> Backup.builder().name(s3Object.getName())
-            .lastModified(dateTimeFormatter
-                .parse(s3Object.getName().substring(0, 15), Instant::from))
-            .size(s3Object.getProperties().getContentLength())
-            .totalRowCount(getTotalCountFromName(s3Object))
-            .retentionPeriod(getRetentionPeriodFromName(s3Object)).build())
-        .sorted((a, b) -> b.getLastModified().compareTo(a.getLastModified()))
-        .toList();
-  }
+    public List<Backup> getBackups(String containerName) {
+        BlobContainerClient blobContainerClient = blobServiceClient
+                .getBlobContainerClient(containerName);
 
-  public void createBackup(String containerName, File dumpFile) {
-    BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(containerName);
+        if (!blobContainerClient.exists()) {
+            return Collections.emptyList();
+        }
 
-    if (!blobContainerClient.exists()) {
-      blobContainerClient.create();
+        return blobContainerClient.listBlobs().stream().map(s3Object -> Backup
+                .builder().name(s3Object.getName())
+                .lastModified(dateTimeFormatter.parse(
+                        s3Object.getName().substring(0, 15), Instant::from))
+                .size(s3Object.getProperties().getContentLength())
+                .totalRowCount(getTotalCountFromName(s3Object))
+                .retentionPeriod(getRetentionPeriodFromName(s3Object)).build())
+                .sorted((a, b) -> b.getLastModified()
+                        .compareTo(a.getLastModified()))
+                .toList();
     }
 
-    blobContainerClient.getBlobClient(dumpFile.getName())
-        .uploadFromFile(dumpFile.getAbsolutePath());
-  }
+    public void createBackup(String containerName, File dumpFile) {
+        BlobContainerClient blobContainerClient = blobServiceClient
+                .getBlobContainerClient(containerName);
 
-  public File downloadBackup(String containerName, String key) throws IOException {
-    BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(containerName);
+        if (!blobContainerClient.exists()) {
+            blobContainerClient.create();
+        }
 
-    if (!blobContainerClient.exists()) {
-      throw new IOException("Container does not exist");
+        blobContainerClient.getBlobClient(dumpFile.getName())
+                .uploadFromFile(dumpFile.getAbsolutePath());
     }
 
-    blobContainerClient.getBlobClient(key).downloadToFile(key);
+    public File downloadBackup(String containerName, String key)
+            throws IOException {
+        BlobContainerClient blobContainerClient = blobServiceClient
+                .getBlobContainerClient(containerName);
 
-    return new File(key);
-  }
+        if (!blobContainerClient.exists()) {
+            throw new IOException("Container does not exist");
+        }
 
-  public void cleanup(String containerName) {
-    BlobContainerClient blobContainerClient = blobServiceClient
-        .getBlobContainerClient(containerName);
+        blobContainerClient.getBlobClient(key).downloadToFile(key);
 
-    if (!blobContainerClient.exists()) {
-      return;
+        return new File(key);
     }
 
-    blobContainerClient.listBlobs().stream().filter(this::shouldCleanup)
-        .forEach(blobItem -> blobContainerClient
-            .getBlobClient(blobItem.getName()).delete());
-  }
+    public String getBackupUrl(String containerName, String key)
+            throws IOException {
+        BlobContainerClient blobContainerClient = blobServiceClient
+                .getBlobContainerClient(containerName);
 
-  public Optional<Instant> getLastBackupTime(String containerName) {
-    return getBackups(containerName).stream().findFirst()
-        .map(backup -> backup.getLastModified());
-  }
+        if (!blobContainerClient.exists()) {
+            throw new IOException("Container does not exist");
+        }
 
-  private int getTotalCountFromName(BlobItem backup) {
-    return Integer.parseInt(backup.getName().split("\\.")[1]);
-  }
+        BlobSasPermission permission = new BlobSasPermission()
+                .setReadPermission(true);
+        OffsetDateTime expiryTime = OffsetDateTime.now().plusMinutes(2);
+        BlobServiceSasSignatureValues values = new BlobServiceSasSignatureValues(
+                expiryTime, permission);
 
-  private int getRetentionPeriodFromName(BlobItem backup) {
-    return Integer.parseInt(backup.getName().split("\\.")[2]);
-  }
+        String sasToken = blobContainerClient.getBlobClient(key)
+                .generateSas(values);
+        return blobContainerClient.getBlobClient(key).getBlobUrl() + "?"
+                + sasToken;
+    }
 
-  private boolean shouldCleanup(BlobItem backup) {
-    Backup b = Backup.builder().name(backup.getName())
-        .lastModified(dateTimeFormatter.parse(backup.getName().substring(0, 15),
-            Instant::from))
-        .retentionPeriod(getRetentionPeriodFromName(backup)).build();
-    Instant cleanupDate = b.getLastModified()
-        .plus(Duration.ofDays(b.getRetentionPeriod()));
+    public void cleanup(String containerName) {
+        BlobContainerClient blobContainerClient = blobServiceClient
+                .getBlobContainerClient(containerName);
 
-    return cleanupDate.isBefore(Instant.now());
-  }
+        if (!blobContainerClient.exists()) {
+            return;
+        }
+
+        blobContainerClient.listBlobs().stream().filter(this::shouldCleanup)
+                .forEach(blobItem -> blobContainerClient
+                        .getBlobClient(blobItem.getName()).delete());
+    }
+
+    public Optional<Instant> getLastBackupTime(String containerName) {
+        return getBackups(containerName).stream().findFirst()
+                .map(backup -> backup.getLastModified());
+    }
+
+    private int getTotalCountFromName(BlobItem backup) {
+        return Integer.parseInt(backup.getName().split("\\.")[1]);
+    }
+
+    private int getRetentionPeriodFromName(BlobItem backup) {
+        return Integer.parseInt(backup.getName().split("\\.")[2]);
+    }
+
+    private boolean shouldCleanup(BlobItem backup) {
+        Backup b = Backup.builder().name(backup.getName())
+                .lastModified(dateTimeFormatter.parse(
+                        backup.getName().substring(0, 15), Instant::from))
+                .retentionPeriod(getRetentionPeriodFromName(backup)).build();
+        Instant cleanupDate = b.getLastModified()
+                .plus(Duration.ofDays(b.getRetentionPeriod()));
+
+        return cleanupDate.isBefore(Instant.now());
+    }
 }

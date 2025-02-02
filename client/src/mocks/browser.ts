@@ -91,6 +91,14 @@ const mocks = [
       },
     ]);
   }),
+  http.get('/api/database/:name/backup/:backupName', async (request) => {
+    await delay(200);
+    return HttpResponse.json({
+      url: `http://example.com/backup-${request.params[
+        'name'
+      ].toString()}-${request.params['backupName'].toString()}.zip`,
+    });
+  }),
 ];
 
 export async function setupMocks() {

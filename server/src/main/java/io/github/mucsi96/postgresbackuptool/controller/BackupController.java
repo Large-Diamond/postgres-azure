@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.github.mucsi96.postgresbackuptool.configuration.DatabaseConfiguration;
 import io.github.mucsi96.postgresbackuptool.model.Backup;
+import io.github.mucsi96.postgresbackuptool.model.BackupUrl;
 import io.github.mucsi96.postgresbackuptool.service.BackupService;
 import io.github.mucsi96.postgresbackuptool.service.DatabaseService;
 import jakarta.validation.constraints.Max;
@@ -72,6 +73,19 @@ public class BackupController {
                 .getDatabaseConfiguration(databaseName);
         return backupService
                 .getBackups(databaseConfiguration.getBackupContainerName());
+    }
+
+    @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupDownloader') and hasAuthority('SCOPE_downloadBackup')")
+    @GetMapping("/database/{database_name}/backup/{key}")
+    @ResponseBody
+    BackupUrl download(@PathVariable("database_name") String databaseName,
+            @PathVariable String key) throws IOException, InterruptedException {
+        DatabaseConfiguration databaseConfiguration = databaseService
+                .getDatabaseConfiguration(databaseName);
+        String url = backupService.getBackupUrl(
+                databaseConfiguration.getBackupContainerName(), key);
+
+        return BackupUrl.builder().url(url).build();
     }
 
     @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupRestorer') and hasAuthority('SCOPE_restoreBackup')")

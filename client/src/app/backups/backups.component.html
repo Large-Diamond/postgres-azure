@@ -34,13 +34,21 @@
       <td bt-no-wrap bt-center-align>{{ backup.size | size }}</td>
       <td bt-right-align>{{ backup.retentionPeriod | retention }}</td>
       <td bt-center-align>
-        <button
-          bt
-          [disabled]="processing() || backup.name !== selectedBackup()"
-          (click)="restoreBackup()"
+        <div
+          class="actions"
+          [class.disabled]="processing() || backup.name !== selectedBackup()"
         >
-          Restore
-        </button>
+          <button mat-icon-button (click)="downloadBackup()" class="download">
+            <mat-icon>folder_zip</mat-icon>
+          </button>
+          <button
+            bt
+            [disabled]="processing() || backup.name !== selectedBackup()"
+            (click)="restoreBackup()"
+          >
+            Restore
+          </button>
+        </div>
       </td>
     </tr>
     }

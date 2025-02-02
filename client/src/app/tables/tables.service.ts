@@ -99,6 +99,28 @@ export class TablesService {
       .subscribe();
   }
 
+  downloadBackup(selectedBackup: string) {
+    this.selectedDatabaseService
+      .getSelectedDatabase()
+      .pipe(
+        tap(() => this.processing.set(true)),
+        switchMap((databaseName) =>
+          this.http
+            .get<{ url: string }>(
+              environment.apiContextPath +
+                `/database/${databaseName}/backup/${selectedBackup}`
+            )
+            .pipe(
+              handleError('Could not download backup.'),
+              tap(({ url }) => window.open(url, '_blank')),
+              finalize(() => this.processing.set(false))
+            )
+        ),
+        take(1)
+      )
+      .subscribe();
+  }
+
   isProcessing() {
     return this.processing;
   }

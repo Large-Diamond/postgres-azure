@@ -2,3 +2,22 @@
   display: grid;
   gap: 20px;
 }
+
+.actions {
+  display: grid;
+  align-items: center;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+
+  &.disabled {
+    .download {
+      visibility: hidden;
+    }
+  }
+}
+
+.download:hover {
+  cursor: pointer;
+  color: var(--bt-strong-text-color);
+  transition: color 0.3s;
+}
