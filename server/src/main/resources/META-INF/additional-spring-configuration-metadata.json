@@ -1,14 +1,22 @@
-{
-  "properties": [
-    {
-      "name": "blobstorage.endpoint",
-      "type": "java.lang.String",
-      "description": "Azure blobstorage endpoint url"
-    },
-    {
-      "name": "databasesConfigPath",
-      "type": "java.lang.String",
-      "description": "Path to the databases configuration file"
-    }
-  ]
-}
+{"properties": [
+  {
+    "name": "blobstorage.connectionString",
+    "type": "java.lang.String",
+    "description": "Azure Blob Storage connection string"
+  },
+  {
+    "name": "databasesConfigPath",
+    "type": "java.lang.String",
+    "description": "Path to the databases configuration file"
+  },
+  {
+    "name": "blobstorage.baseUrl",
+    "type": "java.lang.String",
+    "description": "Azure Blob Storage URL"
+  },
+  {
+    "name": "blobstorage.containerName",
+    "type": "java.lang.String",
+    "description": "Azure Blob Storage container name"
+  }
+]}

@@ -30,26 +30,30 @@ def extract_table_data(table: Locator) -> List[Dict[str, str]]:
 
 
 def create_backup(
-    container_name: str, rowsCount: int, retention: int, size: int, time_delta: timedelta
+    prefix: str, rowsCount: int, retention: int, size: int, time_delta: timedelta
 ):
-    container_client = blob_service_client.get_container_client(container_name)
+    container_client = blob_service_client.get_container_client('backups')
     if not container_client.exists():
         container_client.create_container()
     current_time = datetime.now(timezone.utc)
     one_day_ago = current_time - time_delta
-    filename = one_day_ago.strftime(f"%Y%m%d-%H%M%S.{rowsCount}.{retention}.pgdump")
+    filename = one_day_ago.strftime(
+        f"{prefix}/%Y%m%d-%H%M%S.{rowsCount}.{retention}.pgdump")
     container_client.get_blob_client(filename).upload_blob(
         "".join(["a" for _ in range(size)])
     )
 
 
 def cleanup_backups():
-    for container in blob_service_client.list_containers():
-        container_client = blob_service_client.get_container_client(container.name)
-        for blob in container_client.list_blobs():
-            blob_client = container_client.get_blob_client(blob.name)
-            blob_client.delete_blob()
-        container_client.delete_container()
+    container_client = blob_service_client.get_container_client('backups')
+
+    if not container_client.exists():
+        container_client.create_container()
+        return
+
+    for blob in container_client.list_blobs():
+        blob_client = container_client.get_blob_client(blob.name)
+        blob_client.delete_blob()
 
 
 def cleanup_db():

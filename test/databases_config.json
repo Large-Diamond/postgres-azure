@@ -5,7 +5,6 @@
     "port": 5432,
     "database": "test",
     "schema": "test1",
-    "backupContainerName": "db1-backup",
     "username": "postgres",
     "password": "postgres",
     "excludeTables": ["passwords", "secrets"]
@@ -16,7 +15,6 @@
     "port": 5432,
     "database": "test",
     "schema": "test2",
-    "backupContainerName": "db2-backup",
     "username": "postgres",
     "password": "postgres",
     "excludeTables": ["passwords", "secrets"]

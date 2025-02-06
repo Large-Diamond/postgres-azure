@@ -36,7 +36,8 @@ Simple PostgreSQL backup tool to Azure with UI
 - `AZURE_CLIENT_ID`
 - `AZURE_TENANT_ID`
 - `SPRING_ACTUATOR_PORT`
-- `BLOBSTORAGE_ENDPOINT_URL`
+- `STORAGE_ACCOUNT_BLOB_URL`
+- `STORAGE_ACCOUNT_CONTAINER_NAME`
 - `DATABASES_CONFIG_PATH`
 - `UI_CLIENT_ID`
 
@@ -50,7 +51,6 @@ Simple PostgreSQL backup tool to Azure with UI
     "port": 5432,
     "database": "test",
     "schema": "test1",
-    "backupContainerName": "db1-backup",
     "username": "postgres",
     "password": "postgres",
     "excludeTables": ["passwords", "secrets"],
@@ -62,7 +62,6 @@ Simple PostgreSQL backup tool to Azure with UI
     "port": 5432,
     "database": "test",
     "schema": "test2",
-    "backupContainerName": "db1-backup",
     "username": "postgres",
     "password": "postgres",
     "excludeTables": ["passwords", "secrets"],
@@ -81,7 +80,7 @@ Simple PostgreSQL backup tool to Azure with UI
 
 ```bash
 host=$(...)
-blobStorageEndpointUrl=$(...)
+storageAccountBlobUrl=$(...)
 apiClientId=$(...)
 spaClientId=$(...)
 
@@ -92,7 +91,8 @@ helm install mucsi96/spring-app \
     --set host=backup.$host \
     --set clientId=$apiClientId \
     --set serviceAccountName=postgres-azure-backup \
-    --set env.BLOBSTORAGE_ENDPOINT_URL=$blobStorageEndpointUrl \
+    --set env.STORAGE_ACCOUNT_BLOB_URL=$storageAccountBlobUrl \
+    --set env.STORAGE_ACCOUNT_CONTAINER_NAME=backups \
     --set env.DATABASES_CONFIG_PATH=/app/databases_config.json \
     --set env.UI_CLIENT_ID=$spaClientId \
     --set configFile[0].name=databases_config.json \

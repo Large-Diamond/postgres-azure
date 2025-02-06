@@ -36,9 +36,6 @@ public class DatabaseConfiguration {
     private String schema;
 
     @JsonProperty(required = true)
-    private String backupContainerName;
-
-    @JsonProperty(required = true)
     private String username;
 
     @JsonProperty(required = true)
@@ -49,6 +46,11 @@ public class DatabaseConfiguration {
     private Optional<DumpFormat> dumpFormat;
 
     DatabaseConfiguration() {
+    }
+
+    @JsonIgnore
+    public String getPrefix() {
+        return name.toLowerCase().replaceAll("[^a-zA-Z0-9]", "-");
     }
 
     @JsonIgnore
@@ -85,7 +87,8 @@ public class DatabaseConfiguration {
     }
 
     public DumpFormat getDumpFormat() {
-        return dumpFormat == null ? DumpFormat.CUSTOM : dumpFormat.orElse(DumpFormat.CUSTOM);
+        return dumpFormat == null ? DumpFormat.CUSTOM
+                : dumpFormat.orElse(DumpFormat.CUSTOM);
     }
 
     public void setDumpFormat(Optional<DumpFormat> dumpFormat) {
