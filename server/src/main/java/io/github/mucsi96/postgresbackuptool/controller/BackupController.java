@@ -46,7 +46,7 @@ public class BackupController {
                         databaseConfiguration.getName(), retentionPeriod,
                         databaseConfiguration.getDumpFormat());
                 backupService.createBackup(
-                        databaseConfiguration.getBackupContainerName(),
+                        databaseConfiguration.getPrefix(),
                         dumpFile);
 
                 dumpFile.delete();
@@ -61,7 +61,7 @@ public class BackupController {
     @ResponseBody
     void cleanup() {
         databaseService.getDatabases().stream()
-                .map(DatabaseConfiguration::getBackupContainerName)
+                .map(DatabaseConfiguration::getPrefix)
                 .forEach(backupService::cleanup);
     }
 
@@ -72,7 +72,7 @@ public class BackupController {
         DatabaseConfiguration databaseConfiguration = databaseService
                 .getDatabaseConfiguration(databaseName);
         return backupService
-                .getBackups(databaseConfiguration.getBackupContainerName());
+                .getBackups(databaseConfiguration.getPrefix());
     }
 
     @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupDownloader') and hasAuthority('SCOPE_downloadBackup')")
@@ -83,7 +83,7 @@ public class BackupController {
         DatabaseConfiguration databaseConfiguration = databaseService
                 .getDatabaseConfiguration(databaseName);
         String url = backupService.getBackupUrl(
-                databaseConfiguration.getBackupContainerName(), key);
+                databaseConfiguration.getPrefix(), key);
 
         return BackupUrl.builder().url(url).build();
     }
@@ -96,7 +96,7 @@ public class BackupController {
         DatabaseConfiguration databaseConfiguration = databaseService
                 .getDatabaseConfiguration(databaseName);
         File dumpFile = backupService.downloadBackup(
-                databaseConfiguration.getBackupContainerName(), key);
+                databaseConfiguration.getPrefix(), key);
         databaseService.restoreDump(databaseName, dumpFile);
 
         dumpFile.delete();
@@ -110,6 +110,6 @@ public class BackupController {
         DatabaseConfiguration databaseConfiguration = databaseService
                 .getDatabaseConfiguration(databaseName);
         return backupService.getLastBackupTime(
-                databaseConfiguration.getBackupContainerName());
+                databaseConfiguration.getPrefix());
     }
 }

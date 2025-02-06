@@ -23,14 +23,14 @@ def browser_type_launch_args(browser_type_launch_args):
 def cleanup():
     cleanup_backups()
     create_backup(
-        container_name="db1-backup",
+        prefix="db1",
         rowsCount=8,
         time_delta=timedelta(hours=10),
         retention=1,
         size=100,
     )
     create_backup(
-        container_name="db1-backup",
+        prefix="db1",
         rowsCount=7,
         time_delta=timedelta(days=3, hours=10),
         retention=7,

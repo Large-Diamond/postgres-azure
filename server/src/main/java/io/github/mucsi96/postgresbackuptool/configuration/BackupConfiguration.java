@@ -20,10 +20,10 @@ public class BackupConfiguration {
 
   @Bean
   public BlobServiceClient blobServiceClient(
-      @Value("${blobstorage.endpoint}") String endpointUrl,
+      @Value("${blobstorage.baseUrl}") String baseUrl,
       @Value("${blobstorage.connectionString}") String connectionString) {
 
-    log.info("endpointUrl: {}", endpointUrl);
+    log.info("baseUrl: {}", baseUrl);
     log.info("connectionString: {}", connectionString);
 
     if (connectionString != null && !connectionString.isEmpty()) {
@@ -38,7 +38,7 @@ public class BackupConfiguration {
         .build();
 
     BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
-        .endpoint(endpointUrl).credential(tokenCredential).buildClient();
+        .endpoint(baseUrl).credential(tokenCredential).buildClient();
 
     return blobServiceClient;
   }

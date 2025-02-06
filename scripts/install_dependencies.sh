@@ -2,12 +2,13 @@
 
 set -e  # Exit immediately if a command exits with a non-zero status
 
-blobStorageEndpointUrl=$(az storage account show --name ibari --resource-group ibari --query "primaryEndpoints.blob" --output tsv)
+storageAccountBlobUrl=$(az storage account show --name ibari --resource-group ibari --query "primaryEndpoints.blob" --output tsv)
 spaClientId=$(az keyvault secret show --vault-name p05 --name backup-spa-client-id --query value -o tsv)
 apiClientId=$(az keyvault secret show --vault-name p05 --name backup-api-client-id --query value -o tsv)
 tenantId=$(az keyvault secret show --vault-name p05 --name tenant-id --query value -o tsv)
 
-echo "BLOBSTORAGE_ENDPOINT_URL=$blobStorageEndpointUrl" > .env
+echo "STORAGE_ACCOUNT_BLOB_URL=$storageAccountBlobUrl" > .env
+echo "STORAGE_ACCOUNT_CONTAINER_NAME=backups" > .env
 echo "DATABASES_CONFIG_PATH=../scripts/databases_config.json" >> .env
 echo "AZURE_TENANT_ID=$tenantId" >> .env
 echo "AZURE_CLIENT_ID=$apiClientId" >> .env
