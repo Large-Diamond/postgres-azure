@@ -59,7 +59,7 @@ export const appConfig: ApplicationConfig = {
                 cacheLocation: BrowserCacheLocation.LocalStorage,
               },
               system: {
-                allowNativeBroker: false, // Disables WAM Broker
+                allowPlatformBroker: false, // Disables WAM Broker
                 loggerOptions: {
                   loggerCallback: (_logLevel: LogLevel, message: string) =>
                     console.log(message),
