@@ -41,19 +41,28 @@ const mocks = [
     return HttpResponse.json(databases);
   }),
   http.get('/api/database/:name/last-backup-time', async (request) => {
-    return HttpResponse.json(
-      getDatabase(request.params['name'].toString()).lastBackupTime
-    );
+    const name = request.params['name']?.toString();
+
+    if (!name) {
+      return HttpResponse.text('name is required', { status: 400 });
+    }
+
+    return HttpResponse.json(getDatabase(name).lastBackupTime);
   }),
   http.get('/api/database/:name/tables', async (request) => {
+    const name = request.params['name']?.toString();
+
+    if (!name) {
+      return HttpResponse.text('name is required', { status: 400 });
+    }
+
     await delay(600);
     return HttpResponse.json({
       tables: [
         { name: 'fruites', rowCount: 4 },
         { name: 'vegetables', rowCount: 5 },
       ],
-      totalRowCount: getDatabase(request.params['name'].toString())
-        .totalRowCount,
+      totalRowCount: getDatabase(name).totalRowCount,
     } satisfies {
       tables: Table[];
       totalRowCount: number;
@@ -92,11 +101,20 @@ const mocks = [
     ]);
   }),
   http.get('/api/database/:name/backup/:backupName', async (request) => {
+    const name = request.params['name']?.toString();
+    const backupName = request.params['backupName']?.toString();
+
+    if (!name) {
+      return HttpResponse.text('name is required', { status: 400 });
+    }
+
+    if (!backupName) {
+      return HttpResponse.text('backupName is required', { status: 400 });
+    }
+
     await delay(200);
     return HttpResponse.json({
-      url: `http://example.com/backup-${request.params[
-        'name'
-      ].toString()}-${request.params['backupName'].toString()}.zip`,
+      url: `http://example.com/backup-${name}-${backupName}.zip`,
     });
   }),
 ];

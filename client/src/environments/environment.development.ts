@@ -1,7 +1,7 @@
 import '../mocks/browser';
 
 export const environment = {
-  mockAuth: true,
+  mockAuth: false,
   production: false,
   apiContextPath: '/api',
   tenantId: import.meta.env.NG_APP_TENANT_ID,
