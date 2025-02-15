@@ -1,24 +1,22 @@
 package io.github.mucsi96.postgresbackuptool.configuration;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 import io.github.mucsi96.postgresbackuptool.model.DumpFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-@Builder
-@AllArgsConstructor
+@Getter
+@JsonAutoDetect(fieldVisibility = Visibility.ANY)
 public class DatabaseConfiguration {
     @JsonProperty(required = true)
     private String name;
@@ -41,12 +39,11 @@ public class DatabaseConfiguration {
     @JsonProperty(required = true)
     private String password;
 
-    private Optional<List<String>> excludeTables;
+    private List<String> excludeTables = List.of();
 
-    private Optional<DumpFormat> dumpFormat;
+    private DumpFormat dumpFormat = DumpFormat.CUSTOM;
 
-    DatabaseConfiguration() {
-    }
+    private boolean createPlainDump = false;
 
     @JsonIgnore
     public String getPrefix() {
@@ -76,22 +73,5 @@ public class DatabaseConfiguration {
                 username, password);
 
         return new JdbcTemplate(dataSource);
-    }
-
-    public Optional<List<String>> getExcludeTables() {
-        return excludeTables == null ? Optional.empty() : excludeTables;
-    }
-
-    public void setExcludeTables(Optional<List<String>> excludeTables) {
-        this.excludeTables = excludeTables;
-    }
-
-    public DumpFormat getDumpFormat() {
-        return dumpFormat == null ? DumpFormat.CUSTOM
-                : dumpFormat.orElse(DumpFormat.CUSTOM);
-    }
-
-    public void setDumpFormat(Optional<DumpFormat> dumpFormat) {
-        this.dumpFormat = dumpFormat;
     }
 }
