@@ -42,18 +42,27 @@ public class BackupController {
             throws IOException, InterruptedException {
         databaseService.getDatabases().forEach(databaseConfiguration -> {
             try {
-                File dumpFile = databaseService.createDump(
-                        databaseConfiguration.getName(), retentionPeriod,
-                        databaseConfiguration.getDumpFormat());
-                backupService.createBackup(
+                createDump(retentionPeriod, databaseConfiguration.getName(),
                         databaseConfiguration.getPrefix(),
-                        dumpFile);
+                        databaseConfiguration.getDumpFormat().getValue());
 
-                dumpFile.delete();
+                if (databaseConfiguration.isCreatePlainDump()) {
+                    createDump(retentionPeriod, databaseConfiguration.getName(),
+                            databaseConfiguration.getPrefix(), "plain");
+                }
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private void createDump(int retentionPeriod, String name, String prefix,
+            String dumpFormat) throws IOException, InterruptedException {
+        File dumpFile = databaseService.createDump(name, retentionPeriod,
+                dumpFormat);
+        backupService.createBackup(prefix, dumpFile);
+
+        dumpFile.delete();
     }
 
     @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupCleaner') and hasAuthority('SCOPE_cleanupBackups')")
@@ -71,8 +80,7 @@ public class BackupController {
     List<Backup> list(@PathVariable("database_name") String databaseName) {
         DatabaseConfiguration databaseConfiguration = databaseService
                 .getDatabaseConfiguration(databaseName);
-        return backupService
-                .getBackups(databaseConfiguration.getPrefix());
+        return backupService.getBackups(databaseConfiguration.getPrefix());
     }
 
     @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupDownloader') and hasAuthority('SCOPE_downloadBackup')")
@@ -82,8 +90,8 @@ public class BackupController {
             @PathVariable String key) throws IOException, InterruptedException {
         DatabaseConfiguration databaseConfiguration = databaseService
                 .getDatabaseConfiguration(databaseName);
-        String url = backupService.getBackupUrl(
-                databaseConfiguration.getPrefix(), key);
+        String url = backupService
+                .getBackupUrl(databaseConfiguration.getPrefix(), key);
 
         return BackupUrl.builder().url(url).build();
     }
@@ -95,8 +103,8 @@ public class BackupController {
             @PathVariable String key) throws IOException, InterruptedException {
         DatabaseConfiguration databaseConfiguration = databaseService
                 .getDatabaseConfiguration(databaseName);
-        File dumpFile = backupService.downloadBackup(
-                databaseConfiguration.getPrefix(), key);
+        File dumpFile = backupService
+                .downloadBackup(databaseConfiguration.getPrefix(), key);
         databaseService.restoreDump(databaseName, dumpFile);
 
         dumpFile.delete();
@@ -109,7 +117,7 @@ public class BackupController {
             @PathVariable("database_name") String databaseName) {
         DatabaseConfiguration databaseConfiguration = databaseService
                 .getDatabaseConfiguration(databaseName);
-        return backupService.getLastBackupTime(
-                databaseConfiguration.getPrefix());
+        return backupService
+                .getLastBackupTime(databaseConfiguration.getPrefix());
     }
 }
