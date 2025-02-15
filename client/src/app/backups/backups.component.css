@@ -14,6 +14,14 @@
       visibility: hidden;
     }
   }
+
+  &:not(.hasPlainDump) {
+    grid-template-columns: auto 1fr;
+  }
+
+  &.hasPlainDump {
+    grid-template-columns: auto auto 1fr;
+  }
 }
 
 .download:hover {

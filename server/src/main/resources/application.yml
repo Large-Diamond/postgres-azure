@@ -1,5 +1,4 @@
 blobstorage:
-  connectionString: ${BLOBSTORAGE_CONNECTION_STRING:}
   baseUrl: ${STORAGE_ACCOUNT_BLOB_URL:}
   containerName: ${STORAGE_ACCOUNT_CONTAINER_NAME}
 

@@ -1,17 +1,28 @@
-import { Component, signal, Signal, WritableSignal } from '@angular/core';
+import {
+  Component,
+  signal,
+  Signal,
+  WritableSignal
+} from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { Backup } from '../../types';
 import { TablesService } from '../tables/tables.service';
 import { RelativeTimePipe } from '../utils/relativeTime.pipe';
 import { RetentionPipe } from '../utils/retention.pipe';
 import { SizePipe } from '../utils/size.pipe';
 import { BackupsService } from './backups.service';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-backups',
   standalone: true,
-  imports: [SizePipe, RetentionPipe, RelativeTimePipe, MatIconModule, MatButtonModule],
+  imports: [
+    SizePipe,
+    RetentionPipe,
+    RelativeTimePipe,
+    MatIconModule,
+    MatButtonModule,
+  ],
   templateUrl: './backups.component.html',
   styleUrl: './backups.component.css',
 })
@@ -40,14 +51,14 @@ export class BackupsComponent {
     this.tableService.restoreBackup(selectedBackup);
   }
 
-  downloadBackup() {
+  downloadBackup({ type }: { type: 'plain' | 'archive' }) {
     const selectedBackup = this.selectedBackup();
 
     if (this.processing() || !selectedBackup) {
       return;
     }
 
-    this.tableService.downloadBackup(selectedBackup);
+    this.tableService.downloadBackup(selectedBackup, type);
   }
 
   selectBackup(backup: Backup) {

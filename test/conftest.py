@@ -20,7 +20,8 @@ def browser_type_launch_args(browser_type_launch_args):
     }
 
 @fixture(autouse=True)
-def cleanup():
+def cleanup(monkeypatch):
+    monkeypatch.setenv("REQUESTS_CA_BUNDLE", "./.certs/rootCA.pem")
     cleanup_backups()
     create_backup(
         prefix="db1",

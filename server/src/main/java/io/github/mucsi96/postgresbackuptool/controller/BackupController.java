@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.github.mucsi96.postgresbackuptool.configuration.DatabaseConfiguration;
 import io.github.mucsi96.postgresbackuptool.model.Backup;
+import io.github.mucsi96.postgresbackuptool.model.BackupType;
 import io.github.mucsi96.postgresbackuptool.model.BackupUrl;
 import io.github.mucsi96.postgresbackuptool.service.BackupService;
 import io.github.mucsi96.postgresbackuptool.service.DatabaseService;
@@ -80,18 +81,21 @@ public class BackupController {
     List<Backup> list(@PathVariable("database_name") String databaseName) {
         DatabaseConfiguration databaseConfiguration = databaseService
                 .getDatabaseConfiguration(databaseName);
-        return backupService.getBackups(databaseConfiguration.getPrefix());
+        return backupService.getBackups(databaseConfiguration.getPrefix(),
+                databaseConfiguration.isCreatePlainDump());
     }
 
     @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupDownloader') and hasAuthority('SCOPE_downloadBackup')")
     @GetMapping("/database/{database_name}/backup/{key}")
     @ResponseBody
     BackupUrl download(@PathVariable("database_name") String databaseName,
-            @PathVariable String key) throws IOException, InterruptedException {
+            @PathVariable String key, @RequestParam String type)
+            throws IOException, InterruptedException {
         DatabaseConfiguration databaseConfiguration = databaseService
                 .getDatabaseConfiguration(databaseName);
-        String url = backupService
-                .getBackupUrl(databaseConfiguration.getPrefix(), key);
+        String url = backupService.getBackupUrl(
+                databaseConfiguration.getPrefix(), key,
+                BackupType.valueOf(type.toUpperCase()));
 
         return BackupUrl.builder().url(url).build();
     }
@@ -117,7 +121,8 @@ public class BackupController {
             @PathVariable("database_name") String databaseName) {
         DatabaseConfiguration databaseConfiguration = databaseService
                 .getDatabaseConfiguration(databaseName);
-        return backupService
-                .getLastBackupTime(databaseConfiguration.getPrefix());
+        return backupService.getLastBackupTime(
+                databaseConfiguration.getPrefix(),
+                databaseConfiguration.isCreatePlainDump());
     }
 }

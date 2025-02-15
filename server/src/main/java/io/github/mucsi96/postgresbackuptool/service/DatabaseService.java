@@ -24,7 +24,6 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 import io.github.mucsi96.postgresbackuptool.configuration.DatabaseConfiguration;
 import io.github.mucsi96.postgresbackuptool.model.DatabaseInfo;
-import io.github.mucsi96.postgresbackuptool.model.DumpFormat;
 import io.github.mucsi96.postgresbackuptool.model.Table;
 
 @Service
@@ -68,7 +67,6 @@ public class DatabaseService {
 
         List<Table> tables = result.stream()
                 .filter(table -> !databaseConfiguration.getExcludeTables()
-                        .orElse(List.of())
                         .contains((String) table.get("table_name")))
                 .map(table -> {
                     String tableName = (String) table.get("table_name");
@@ -86,20 +84,20 @@ public class DatabaseService {
     }
 
     public File createDump(String databaseName, int retentionPeriod,
-            DumpFormat format) throws IOException, InterruptedException {
+            String format) throws IOException, InterruptedException {
         DatabaseConfiguration databaseConfiguration = getDatabaseConfiguration(
                 databaseName);
         String timeString = dateTimeFormatter.format(Instant.now());
-        String filename = String.format("%s.%s.%s.pgdump", timeString,
+        String filename = String.format("%s.%s.%s.%s", timeString,
                 getDatabaseInfo(databaseName).getTotalRowCount(),
-                retentionPeriod);
+                retentionPeriod, "plain".equals(format) ? "sql" : "pgdump");
         List<String> commands = Stream.of(
                 List.of("pg_dump", "--dbname",
                         databaseConfiguration.getConnectionString(), "--schema",
-                        databaseConfiguration.getSchema(), "--format",
-                        format.getValue(), "--file", filename),
-                databaseConfiguration.getExcludeTables().orElse(List.of())
-                        .stream().flatMap(table -> {
+                        databaseConfiguration.getSchema(), "--format", format,
+                        "--file", filename),
+                databaseConfiguration.getExcludeTables().stream()
+                        .flatMap(table -> {
                             String fullTableName = databaseConfiguration
                                     .getSchema() + "." + table;
                             return List.of("--exclude-table", fullTableName)

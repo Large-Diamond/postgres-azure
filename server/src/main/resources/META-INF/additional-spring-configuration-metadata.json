@@ -1,10 +1,5 @@
 {"properties": [
   {
-    "name": "blobstorage.connectionString",
-    "type": "java.lang.String",
-    "description": "Azure Blob Storage connection string"
-  },
-  {
     "name": "databasesConfigPath",
     "type": "java.lang.String",
     "description": "Path to the databases configuration file"
