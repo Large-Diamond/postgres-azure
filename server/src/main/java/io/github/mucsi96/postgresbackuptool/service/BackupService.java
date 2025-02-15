@@ -96,11 +96,13 @@ public class BackupService {
         UserDelegationKey userDelegationKey = blobServiceClient
                 .getUserDelegationKey(OffsetDateTime.now(), expiryTime);
 
-        String sasToken = blobContainerClient.getBlobClient(prefix + "/" + key)
-                .generateUserDelegationSas(values, userDelegationKey);
         String fileName = type == BackupType.ARCHIVE ? key
                 : key.replaceAll("\\.[^.]+$", "") + ".sql";
-        return blobContainerClient.getBlobClient(prefix + "/" + fileName).getBlobUrl() + "?" + sasToken;
+        String sasToken = blobContainerClient
+                .getBlobClient(prefix + "/" + fileName)
+                .generateUserDelegationSas(values, userDelegationKey);
+        return blobContainerClient.getBlobClient(prefix + "/" + fileName)
+                .getBlobUrl() + "?" + sasToken;
     }
 
     public void cleanup(String prefix) {
