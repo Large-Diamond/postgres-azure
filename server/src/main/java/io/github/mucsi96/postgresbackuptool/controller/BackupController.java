@@ -3,6 +3,7 @@ package io.github.mucsi96.postgresbackuptool.controller;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 public class BackupController {
     private final BackupService backupService;
     private final DatabaseService databaseService;
+    private final DateTimeFormatter dateTimeFormatter;
 
     @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupCreator') and hasAuthority('SCOPE_createBackup')")
     @PostMapping("/backup")
@@ -41,15 +43,19 @@ public class BackupController {
     void create(
             @RequestParam("retention_period") @Min(1) @Max(356) int retentionPeriod)
             throws IOException, InterruptedException {
+
+        String timeString = dateTimeFormatter.format(Instant.now());
         databaseService.getDatabases().forEach(databaseConfiguration -> {
             try {
                 createDump(retentionPeriod, databaseConfiguration.getName(),
                         databaseConfiguration.getPrefix(),
-                        databaseConfiguration.getDumpFormat().getValue());
+                        databaseConfiguration.getDumpFormat().getValue(),
+                        timeString);
 
                 if (databaseConfiguration.isCreatePlainDump()) {
                     createDump(retentionPeriod, databaseConfiguration.getName(),
-                            databaseConfiguration.getPrefix(), "plain");
+                            databaseConfiguration.getPrefix(), "plain",
+                            timeString);
                 }
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
@@ -58,9 +64,10 @@ public class BackupController {
     }
 
     private void createDump(int retentionPeriod, String name, String prefix,
-            String dumpFormat) throws IOException, InterruptedException {
+            String dumpFormat, String timeString)
+            throws IOException, InterruptedException {
         File dumpFile = databaseService.createDump(name, retentionPeriod,
-                dumpFormat);
+                dumpFormat, timeString);
         backupService.createBackup(prefix, dumpFile);
 
         dumpFile.delete();

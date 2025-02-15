@@ -3,8 +3,6 @@ package io.github.mucsi96.postgresbackuptool.service;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,18 +26,15 @@ import io.github.mucsi96.postgresbackuptool.model.Table;
 
 @Service
 public class DatabaseService {
-    private final DateTimeFormatter dateTimeFormatter;
     private final List<DatabaseConfiguration> databases;
 
     public DatabaseService(
-            @Value("${databasesConfigPath}") String databasesConfigPath,
-            DateTimeFormatter dateTimeFormatter)
+            @Value("${databasesConfigPath}") String databasesConfigPath)
             throws StreamReadException, DatabindException, IOException {
         this.databases = Arrays
                 .asList(new ObjectMapper().registerModule(new Jdk8Module())
                         .readValue(Paths.get(databasesConfigPath).toFile(),
                                 DatabaseConfiguration[].class));
-        this.dateTimeFormatter = dateTimeFormatter;
     }
 
     public List<DatabaseConfiguration> getDatabases() {
@@ -84,10 +79,9 @@ public class DatabaseService {
     }
 
     public File createDump(String databaseName, int retentionPeriod,
-            String format) throws IOException, InterruptedException {
+            String format, String timeString) throws IOException, InterruptedException {
         DatabaseConfiguration databaseConfiguration = getDatabaseConfiguration(
                 databaseName);
-        String timeString = dateTimeFormatter.format(Instant.now());
         String filename = String.format("%s.%s.%s.%s", timeString,
                 getDatabaseInfo(databaseName).getTotalRowCount(),
                 retentionPeriod, "plain".equals(format) ? "sql" : "pgdump");
