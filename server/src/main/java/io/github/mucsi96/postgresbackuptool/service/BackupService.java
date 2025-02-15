@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
@@ -98,11 +99,10 @@ public class BackupService {
 
         String fileName = type == BackupType.ARCHIVE ? key
                 : key.replaceAll("\\.[^.]+$", "") + ".sql";
-        String sasToken = blobContainerClient
-                .getBlobClient(prefix + "/" + fileName)
+        BlobClient blobClient = blobContainerClient
+                .getBlobClient(prefix + "/" + fileName);
+        return blobClient.getBlobUrl() + "?" + blobClient
                 .generateUserDelegationSas(values, userDelegationKey);
-        return blobContainerClient.getBlobClient(prefix + "/" + fileName)
-                .getBlobUrl() + "?" + sasToken;
     }
 
     public void cleanup(String prefix) {
