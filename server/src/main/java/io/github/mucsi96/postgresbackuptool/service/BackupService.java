@@ -100,8 +100,7 @@ public class BackupService {
                 .generateUserDelegationSas(values, userDelegationKey);
         String fileName = type == BackupType.ARCHIVE ? key
                 : key.replaceAll("\\.[^.]+$", "") + ".sql";
-        return blobContainerClient.getBlobClient(prefix + "/" + fileName)
-                .getBlobUrl() + "/" + prefix + "?" + sasToken;
+        return blobContainerClient.getBlobClient(prefix + "/" + fileName).getBlobUrl() + "?" + sasToken;
     }
 
     public void cleanup(String prefix) {
