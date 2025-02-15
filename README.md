@@ -54,7 +54,8 @@ Simple PostgreSQL backup tool to Azure with UI
     "username": "postgres",
     "password": "postgres",
     "excludeTables": ["passwords", "secrets"],
-    "dumpFormat": "custom"
+    "dumpFormat": "custom",
+    "createPlainDump": true
   },
   {
     "name": "db2",

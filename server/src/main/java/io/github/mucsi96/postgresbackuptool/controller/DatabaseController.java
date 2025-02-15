@@ -37,13 +37,15 @@ public class DatabaseController {
                     .getDatabaseInfo(databaseName);
             DatabaseConfiguration databaseConfiguration = databaseService
                     .getDatabaseConfiguration(databaseName);
-            Optional<Instant> lastBackupTime = backupService
-                    .getLastBackupTime(databaseConfiguration.getPrefix());
+            Optional<Instant> lastBackupTime = backupService.getLastBackupTime(
+                    databaseConfiguration.getPrefix(),
+                    databaseConfiguration.isCreatePlainDump());
             return Database.builder().name(databaseName)
                     .totalRowCount(databaseInfo.getTotalRowCount())
                     .tablesCount(databaseInfo.getTables().size())
                     .backupsCount(backupService
-                            .getBackups(databaseConfiguration.getPrefix())
+                            .getBackups(databaseConfiguration.getPrefix(),
+                                    databaseConfiguration.isCreatePlainDump())
                             .size())
                     .lastBackupTime(lastBackupTime.orElse(null)).build();
         }).toList();

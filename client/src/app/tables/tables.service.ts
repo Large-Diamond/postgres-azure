@@ -99,7 +99,7 @@ export class TablesService {
       .subscribe();
   }
 
-  downloadBackup(selectedBackup: string) {
+  downloadBackup(selectedBackup: string, type: 'plain' | 'archive') {
     this.selectedDatabaseService
       .getSelectedDatabase()
       .pipe(
@@ -108,7 +108,7 @@ export class TablesService {
           this.http
             .get<{ url: string }>(
               environment.apiContextPath +
-                `/database/${databaseName}/backup/${selectedBackup}`
+                `/database/${databaseName}/backup/${selectedBackup}?type=${type}`
             )
             .pipe(
               handleError('Could not download backup.'),

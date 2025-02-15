@@ -22,6 +22,7 @@ import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 
 import io.github.mucsi96.postgresbackuptool.model.Backup;
+import io.github.mucsi96.postgresbackuptool.model.BackupType;
 
 @Service
 public class BackupService {
@@ -37,7 +38,7 @@ public class BackupService {
         this.containerName = containerName;
     }
 
-    public List<Backup> getBackups(String prefix) {
+    public List<Backup> getBackups(String prefix, boolean hasPlainDump) {
         BlobContainerClient blobContainerClient = blobServiceClient
                 .getBlobContainerClient(containerName);
 
@@ -47,7 +48,8 @@ public class BackupService {
 
         return blobContainerClient
                 .listBlobs(new ListBlobsOptions().setPrefix(prefix + "/"), null)
-                .stream().map(blob -> {
+                .stream().filter(blob -> !blob.getName().endsWith(".sql"))
+                .map(blob -> {
                     String name = getBackupName(prefix, blob);
                     return Backup.builder().name(getBackupName(prefix, blob))
                             .lastModified(dateTimeFormatter.parse(
@@ -56,7 +58,7 @@ public class BackupService {
                             .totalRowCount(getTotalCountFromName(prefix, blob))
                             .retentionPeriod(
                                     getRetentionPeriodFromName(prefix, blob))
-                            .build();
+                            .hasPlainDump(hasPlainDump).build();
                 }).sorted((a, b) -> b.getLastModified()
                         .compareTo(a.getLastModified()))
                 .toList();
@@ -80,7 +82,8 @@ public class BackupService {
         return new File(key);
     }
 
-    public String getBackupUrl(String prefix, String key) throws IOException {
+    public String getBackupUrl(String prefix, String key, BackupType type)
+            throws IOException {
         BlobContainerClient blobContainerClient = blobServiceClient
                 .getBlobContainerClient(containerName);
 
@@ -95,7 +98,9 @@ public class BackupService {
 
         String sasToken = blobContainerClient.getBlobClient(prefix + "/" + key)
                 .generateUserDelegationSas(values, userDelegationKey);
-        return blobContainerClient.getBlobClient(prefix + "/" + key)
+        String fileName = type == BackupType.ARCHIVE ? key
+                : key.replaceAll("\\.[^.]+$", "") + ".sql";
+        return blobContainerClient.getBlobClient(prefix + "/" + fileName)
                 .getBlobUrl() + "/" + prefix + "?" + sasToken;
     }
 
@@ -110,8 +115,9 @@ public class BackupService {
                         .getBlobClient(blobItem.getName()).delete());
     }
 
-    public Optional<Instant> getLastBackupTime(String prefix) {
-        return getBackups(prefix).stream().findFirst()
+    public Optional<Instant> getLastBackupTime(String prefix,
+            boolean hasPlainDump) {
+        return getBackups(prefix, hasPlainDump).stream().findFirst()
                 .map(backup -> backup.getLastModified());
     }
 

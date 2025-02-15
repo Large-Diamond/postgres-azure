@@ -90,6 +90,7 @@ const mocks = [
         totalRowCount: 4,
         size: 1024,
         retentionPeriod: 7,
+        hasPlainDump: true,
       },
       {
         name: 'backup2',

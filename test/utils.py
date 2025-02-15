@@ -1,16 +1,14 @@
-from calendar import c
-import re
 from typing import List, Dict
-from playwright.sync_api import Page, Locator
-from azure.storage.blob import BlobClient, BlobServiceClient
+from playwright.sync_api import Locator
+from azure.storage.blob import BlobServiceClient
 import psycopg2
 from datetime import datetime, timedelta, timezone
 
 blob_service_client = BlobServiceClient.from_connection_string(
-    "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
-    + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
-    + "BlobEndpoint=http://localhost:8081"
-    + "/devstoreaccount1;"
+  "DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;"
+  + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
+  + "BlobEndpoint=https://localhost:8081"
+  + "/devstoreaccount1;"
 )
 
 

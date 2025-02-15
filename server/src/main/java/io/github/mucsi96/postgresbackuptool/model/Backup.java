@@ -13,4 +13,5 @@ public class Backup {
   long size;
   int totalRowCount;
   int retentionPeriod;
+  private boolean hasPlainDump;
 }

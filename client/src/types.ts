@@ -17,4 +17,5 @@ export type Backup = {
   totalRowCount: number;
   size: number;
   retentionPeriod: number;
+  hasPlainDump?: boolean;
 };

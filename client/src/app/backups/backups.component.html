@@ -37,10 +37,24 @@
         <div
           class="actions"
           [class.disabled]="processing() || backup.name !== selectedBackup()"
+          [class.hasPlainDump]="backup.hasPlainDump"
         >
-          <button mat-icon-button (click)="downloadBackup()" class="download">
+          <button
+            mat-icon-button
+            (click)="downloadBackup({ type: 'archive' })"
+            class="download"
+          >
             <mat-icon>folder_zip</mat-icon>
           </button>
+          @if (backup.hasPlainDump) {
+          <button
+            mat-icon-button
+            (click)="downloadBackup({ type: 'plain' })"
+            class="download"
+          >
+            <mat-icon>description</mat-icon>
+          </button>
+          }
           <button
             bt
             [disabled]="processing() || backup.name !== selectedBackup()"
