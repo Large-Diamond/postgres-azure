@@ -43,6 +43,7 @@
             mat-icon-button
             (click)="downloadBackup({ type: 'archive' })"
             class="download"
+            aria-label="Download archive"
           >
             <mat-icon>folder_zip</mat-icon>
           </button>
@@ -51,6 +52,7 @@
             mat-icon-button
             (click)="downloadBackup({ type: 'plain' })"
             class="download"
+            aria-label="Download plain dump"
           >
             <mat-icon>description</mat-icon>
           </button>

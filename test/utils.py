@@ -176,3 +176,16 @@ def get_db1_tables():
     tables = [table[0] for table in cur1.fetchall()]
     cur1.close()
     return tables
+
+
+def mock_window_open(page):
+    page.evaluate(
+        """
+        window.open = (url) => {
+            if (url && url.startsWith("https://blobstorage:10000")) {
+                url = url.replace("https://blobstorage:10000", "https://localhost:8081");
+                window.location.href = url;
+            }
+        };
+        """
+    )

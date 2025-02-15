@@ -1,14 +1,21 @@
 {
-    "configurations": [
-        {
-            "type": "java",
-            "name": "Spring Boot-App<postgres-azure-backup>",
-            "request": "launch",
-            "cwd": "${workspaceFolder}/server",
-            "mainClass": "io.github.mucsi96.postgresbackuptool.App",
-            "projectName": "postgres-azure-backup",
-            "args": "",
-            "envFile": "${workspaceFolder}/.env"
-        }
-    ]
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-App<postgres-azure-backup>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/server",
+      "mainClass": "io.github.mucsi96.postgresbackuptool.App",
+      "projectName": "postgres-azure-backup",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "name": "Python: Unittest",
+      "type": "debugpy",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
 }
