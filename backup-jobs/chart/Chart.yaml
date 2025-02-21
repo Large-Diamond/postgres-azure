@@ -1,0 +1,5 @@
+apiVersion: v2
+name: cron-job
+description: A Helm chart for Cron job deployment
+version: 0.1.0
+appVersion: "1.0"
