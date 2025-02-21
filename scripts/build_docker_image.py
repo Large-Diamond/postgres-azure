@@ -27,13 +27,13 @@ docker_utils.build_and_push_docker_img(
     github_access_token=sys.argv[1],
 )
 
-backup_job_version = version_utils.get_version(
-    src=root_directory / 'backup-job', tag_prefix="backup-job")
+job_version = version_utils.get_version(
+    src=root_directory / 'backup-job', tag_prefix="job")
 
 docker_utils.build_and_push_docker_img(
     src=root_directory,
-    version=backup_job_version,
-    tag_prefix="backup-job",
+    version=job_version,
+    tag_prefix="job",
     image_name="postgres-azure-backup-job",
     docker_username=username,
     docker_password=secrets["docker_password"],
