@@ -5,9 +5,10 @@ from azure.identity import WorkloadIdentityCredential
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-scopes = f"{os.getenv('API_CLIENT_ID')}/createBackup {os.getenv('API_CLIENT_ID')}/cleanupBackups"
+task = os.getenv("TASK")
+retention_period = os.getenv("RETENTION_PERIOD")
 
-def get_access_token():
+def get_access_token(scopes):
     try:
         credential = WorkloadIdentityCredential()
         token = credential.get_token(scopes)
@@ -17,22 +18,57 @@ def get_access_token():
         logging.error(f"Failed to obtain access token: {e}")
         exit(1)
 
+def validate_environment_variables():
+    try:
+        if retention_period is None:
+            raise ValueError("RETENTION_PERIOD is not set")
+        retention = int(retention_period)
+        if not (1 <= retention <= 365):
+            raise ValueError("RETENTION_PERIOD must be between 1 and 365")
+    except ValueError as e:
+        logging.error(f"Invalid RETENTION_PERIOD: {e}")
+        exit(1)
+
+    if task not in ["backup", "cleanup"]:
+        logging.error("TASK must be either 'backup' or 'cleanup'")
+        exit(1)
+
 def trigger_backup():
-    token = get_access_token()
+    token = get_access_token(f"{os.getenv('API_CLIENT_ID')}/createBackup")
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
 
     try:
-        response = requests.post("postgres-azure-backup:8080/api/backup?retention_period=1", headers=headers)
+        response = requests.post(f"postgres-azure-backup:8080/api/backup?retention_period={retention_period}", headers=headers)
         response.raise_for_status()
         logging.info(f"Backup triggered successfully: {response.status_code}")
     except requests.exceptions.RequestException as e:
         logging.error(f"Backup request failed: {e}")
         exit(1)
 
+def trigger_cleanup():
+    token = get_access_token(f"{os.getenv('API_CLIENT_ID')}/cleanupBackups")
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.post("postgres-azure-backup:8080/api/cleanup", headers=headers)
+        response.raise_for_status()
+        logging.info(f"Backup triggered successfully: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Backup request failed: {e}")
+        exit(1)
+
+
 if __name__ == "__main__":
     logging.info("Starting backup job...")
-    trigger_backup()
+    validate_environment_variables()
+    if task == "backup":
+        trigger_backup()
+    if task == "cleanup":
+        trigger_cleanup()
     logging.info("Backup job completed.")

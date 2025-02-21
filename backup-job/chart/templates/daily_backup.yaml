@@ -22,6 +22,11 @@ spec:
           containers:
           - name: {{ .Release.Name }}
             image: {{ .Values.image }}
+            env:
+              - name: TASK
+                value: backup
+              - name: RETENTION_PERIOD
+                value: 7
             envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-env
