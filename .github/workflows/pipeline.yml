@@ -28,11 +28,11 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-            name: test-results
-            path: test-results
+          name: test-results
+          path: test-results
       - run: docker compose logs
         if: always()
-  build-images:
+  publish-server-image:
     runs-on: ubuntu-latest
     needs: test-e2e
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -45,8 +45,26 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: 3.13
           cache: "pip"
       - run: pip install -r requirements.txt
 
-      - run: python scripts/build_docker_image.py "${{ secrets.GITHUB_TOKEN }}" "${{ secrets.ANSIBLE_VAULT_KEY }}"
+      - run: python scripts/publish_server_image.py "${{ secrets.GITHUB_TOKEN }}" "${{ secrets.ANSIBLE_VAULT_KEY }}"
+  publish-job-image:
+    runs-on: ubuntu-latest
+    needs: test-e2e
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.13
+          cache: "pip"
+      - run: pip install -r requirements.txt
+
+      - run: python scripts/publish_job_image.py "${{ secrets.GITHUB_TOKEN }}" "${{ secrets.ANSIBLE_VAULT_KEY }}"
