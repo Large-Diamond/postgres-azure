@@ -29,6 +29,15 @@
     },
     {
       "type": "shell",
+      "command": "scripts/deploy_job.sh",
+      "label": "Deploy job",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
       "label": "Build client",
       "command": "npm run build",
       "isBackground": true,

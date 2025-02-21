@@ -31,7 +31,7 @@ job_version = version_utils.get_version(
     src=root_directory / 'backup-job', tag_prefix="job")
 
 docker_utils.build_and_push_docker_img(
-    src=root_directory,
+    src=root_directory / 'backup-job',
     version=job_version,
     tag_prefix="job",
     image_name="postgres-azure-backup-job",

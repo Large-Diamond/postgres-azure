@@ -10,6 +10,7 @@ spec:
   schedule: "0 7 2-31 * *" # At 07:00 on every day-of-month from 2 through 31.
   jobTemplate:
     spec:
+      backoffLimit: 0
       template:
         metadata:
           labels:
@@ -19,27 +20,8 @@ spec:
         spec:
           serviceAccountName: {{ .Release.Name }}
           containers:
-          - name: curlimage
-            image: curlimages/curl:latest
-            command:
-                - /bin/sh
-                - -c
-                - |
-                  set -e
-                  AZURE_FEDERATED_TOKEN=$(cat $AZURE_FEDERATED_TOKEN_FILE)
-                  # Get an access token from Entra ID
-                  ACCESS_TOKEN=$(curl -s -X POST "https://login.microsoftonline.com/$(AZURE_TENANT_ID)/oauth2/v2.0/token" \
-                    -H "Content-Type: application/x-www-form-urlencoded" \
-                    -d "client_id=$(AZURE_CLIENT_ID)" \
-                    -d "client_secret=$(AZURE_FEDERATED_TOKEN)" \
-                    -d "scope=$(API_CLIENT_ID)/createBackup" \
-                    -d "scope=$(API_CLIENT_ID)/cleanupBackups" \
-                    -d "grant_type=client_credentials")
-
-                  # Trigger backup
-                  curl -X POST postgres-azure-backup:8080/api/backup?retention_period=1 --fail \
-                    -H "Authorization: Bearer $ACCESS_TOKEN" \
-                    -H "Content-Type: application/json"
+          - name: {{ .Release.Name }}
+            image: {{ .Values.image }}
             envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-env
