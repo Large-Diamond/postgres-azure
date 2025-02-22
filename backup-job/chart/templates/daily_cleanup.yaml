@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ .Release.Name }}-daily-backup
+  name: {{ .Release.Name }}-daily-cleanup
   namespace: {{ .Release.Namespace }}
 spec:
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
-  schedule: "30 6 2-31 * 1-6" # At 06:30 on every day-of-month from 2 through 31 and on every day-of-week from Monday through Saturday.
+  schedule: "0 7 * * *" # At 07:00 every day.
   jobTemplate:
     spec:
       backoffLimit: 0
@@ -24,9 +24,7 @@ spec:
             image: {{ .Values.image }}
             env:
               - name: TASK
-                value: "backup"
-              - name: RETENTION_PERIOD
-                value: "7"
+                value: "cleanup"
             envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-env
