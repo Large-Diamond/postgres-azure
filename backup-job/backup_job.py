@@ -8,13 +8,14 @@ logging.basicConfig(level=logging.INFO,
 
 task = os.getenv("TASK")
 retention_period = os.getenv("RETENTION_PERIOD")
+client_id = os.getenv("AZURE_CLIENT_ID")
 
 
 def get_access_token():
     try:
         credential = WorkloadIdentityCredential()
         token = credential.get_token(
-            f"api://{os.getenv('AZURE_CLIENT_ID')}/.default")
+            f"{client_id}/.default")
         logging.info("Successfully obtained access token")
         return token.token
     except Exception as e:
@@ -23,19 +24,21 @@ def get_access_token():
 
 
 def validate_environment_variables():
-    try:
-        if retention_period is None:
-            raise ValueError("RETENTION_PERIOD is not set")
-        retention = int(retention_period)
-        if not (1 <= retention <= 365):
-            raise ValueError("RETENTION_PERIOD must be between 1 and 365")
-    except ValueError as e:
-        logging.error(f"Invalid RETENTION_PERIOD: {e}")
-        exit(1)
-
     if task not in ["backup", "cleanup"]:
         logging.error("TASK must be either 'backup' or 'cleanup'")
         exit(1)
+
+    if task == "backup":
+      try:
+          if retention_period is None:
+              raise ValueError("RETENTION_PERIOD is not set")
+          retention = int(retention_period)
+          if not (1 <= retention <= 365):
+              raise ValueError("RETENTION_PERIOD must be between 1 and 365")
+      except ValueError as e:
+          logging.error(f"Invalid RETENTION_PERIOD: {e}")
+          exit(1)
+
 
 
 def trigger_backup():
