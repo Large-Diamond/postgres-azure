@@ -50,7 +50,7 @@ def trigger_backup():
 
     try:
         response = requests.post(
-            f"postgres-azure-backup:8080/api/backup?retention_period={retention_period}", headers=headers)
+            f"http://postgres-azure-backup:8080/api/backup?retention_period={retention_period}", headers=headers)
         response.raise_for_status()
         logging.info(f"Backup triggered successfully: {response.status_code}")
     except requests.exceptions.RequestException as e:
@@ -67,7 +67,7 @@ def trigger_cleanup():
 
     try:
         response = requests.post(
-            "postgres-azure-backup:8080/api/cleanup", headers=headers)
+            "http://postgres-azure-backup:8080/api/cleanup", headers=headers)
         response.raise_for_status()
         logging.info(f"Backup triggered successfully: {response.status_code}")
     except requests.exceptions.RequestException as e:
