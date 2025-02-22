@@ -8,15 +8,13 @@ logging.basicConfig(level=logging.INFO,
 
 task = os.getenv("TASK")
 retention_period = os.getenv("RETENTION_PERIOD")
-client_id = os.getenv("AZURE_CLIENT_ID")
 api_client_id = os.getenv("API_CLIENT_ID")
 
 
-def get_access_token(scopes):
+def get_access_token():
     try:
         credential = WorkloadIdentityCredential()
-        token = credential.get_token(
-            f"{client_id}/.default ${scopes}")
+        token = credential.get_token(f"{api_client_id}/.default")
         logging.info("Successfully obtained access token")
         return token.token
     except Exception as e:
@@ -47,7 +45,7 @@ def validate_environment_variables():
 
 
 def trigger_backup():
-    token = get_access_token(f"{api_client_id}/createBackup")
+    token = get_access_token()
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
@@ -64,7 +62,7 @@ def trigger_backup():
 
 
 def trigger_cleanup():
-    token = get_access_token(f"{api_client_id}/cleanupBackups")
+    token = get_access_token()
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
@@ -74,9 +72,9 @@ def trigger_cleanup():
         response = requests.post(
             "http://postgres-azure-backup:8080/api/cleanup", headers=headers)
         response.raise_for_status()
-        logging.info(f"Backup triggered successfully: {response.status_code}")
+        logging.info(f"Cleanup triggered successfully: {response.status_code}")
     except requests.exceptions.RequestException as e:
-        logging.error(f"Backup request failed: {e}")
+        logging.error(f"Cleanup request failed: {e}")
         exit(1)
 
 
