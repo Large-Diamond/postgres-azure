@@ -15,7 +15,7 @@ def get_access_token():
     try:
         credential = WorkloadIdentityCredential()
         token = credential.get_token(f"api://{api_client_id}/.default")
-        logging.info(f"Successfully obtained access token: {token.token}")
+        logging.info("Successfully obtained access token.")
         return token.token
     except Exception as e:
         logging.error(f"Failed to obtain access token: {e}")
