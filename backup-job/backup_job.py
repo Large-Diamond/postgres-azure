@@ -15,7 +15,7 @@ def get_access_token():
     try:
         credential = WorkloadIdentityCredential()
         token = credential.get_token(f"{api_client_id}/.default")
-        logging.info("Successfully obtained access token")
+        logging.info(f"Successfully obtained access token: {token.token}")
         return token.token
     except Exception as e:
         logging.error(f"Failed to obtain access token: {e}")
@@ -32,16 +32,15 @@ def validate_environment_variables():
         exit(1)
 
     if task == "backup":
-      try:
-          if retention_period is None:
-              raise ValueError("RETENTION_PERIOD is not set")
-          retention = int(retention_period)
-          if not (1 <= retention <= 365):
-              raise ValueError("RETENTION_PERIOD must be between 1 and 365")
-      except ValueError as e:
-          logging.error(f"Invalid RETENTION_PERIOD: {e}")
-          exit(1)
-
+        try:
+            if retention_period is None:
+                raise ValueError("RETENTION_PERIOD is not set")
+            retention = int(retention_period)
+            if not (1 <= retention <= 365):
+                raise ValueError("RETENTION_PERIOD must be between 1 and 365")
+        except ValueError as e:
+            logging.error(f"Invalid RETENTION_PERIOD: {e}")
+            exit(1)
 
 
 def trigger_backup():
