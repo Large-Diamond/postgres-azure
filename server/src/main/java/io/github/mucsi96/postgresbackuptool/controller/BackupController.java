@@ -37,7 +37,7 @@ public class BackupController {
     private final DatabaseService databaseService;
     private final DateTimeFormatter dateTimeFormatter;
 
-    @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupCreator') and hasAuthority('SCOPE_createBackup')")
+    @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupCreator')")
     @PostMapping("/backup")
     @ResponseBody
     void create(
@@ -73,7 +73,7 @@ public class BackupController {
         dumpFile.delete();
     }
 
-    @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupCleaner') and hasAuthority('SCOPE_cleanupBackups')")
+    @PreAuthorize("hasAuthority('APPROLE_DatabaseBackupCleaner')")
     @PostMapping("/cleanup")
     @ResponseBody
     void cleanup() {
