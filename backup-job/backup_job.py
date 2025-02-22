@@ -9,13 +9,14 @@ logging.basicConfig(level=logging.INFO,
 task = os.getenv("TASK")
 retention_period = os.getenv("RETENTION_PERIOD")
 client_id = os.getenv("AZURE_CLIENT_ID")
+api_client_id = os.getenv("API_CLIENT_ID")
 
 
-def get_access_token():
+def get_access_token(scopes):
     try:
         credential = WorkloadIdentityCredential()
         token = credential.get_token(
-            f"{client_id}/.default")
+            f"{client_id}/.default ${scopes}")
         logging.info("Successfully obtained access token")
         return token.token
     except Exception as e:
@@ -24,6 +25,10 @@ def get_access_token():
 
 
 def validate_environment_variables():
+    if not api_client_id:
+        logging.error("API_CLIENT_ID is not set")
+        exit(1)
+
     if task not in ["backup", "cleanup"]:
         logging.error("TASK must be either 'backup' or 'cleanup'")
         exit(1)
@@ -42,7 +47,7 @@ def validate_environment_variables():
 
 
 def trigger_backup():
-    token = get_access_token()
+    token = get_access_token(f"{api_client_id}/createBackup")
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
@@ -59,7 +64,7 @@ def trigger_backup():
 
 
 def trigger_cleanup():
-    token = get_access_token()
+    token = get_access_token(f"{api_client_id}/cleanupBackups")
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
