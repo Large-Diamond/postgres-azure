@@ -13,6 +13,7 @@ api_client_id = os.getenv("API_CLIENT_ID")
 
 def get_access_token():
     try:
+        logging.info("Obtaining access token...")
         credential = WorkloadIdentityCredential()
         token = credential.get_token(f"{api_client_id}/.default")
         logging.info("Successfully obtained access token.")
@@ -44,6 +45,7 @@ def validate_environment_variables():
 
 
 def trigger_backup():
+    logging.info(f"Triggering backup with retention period: {retention_period}")
     token = get_access_token()
     headers = {
         "Authorization": f"Bearer {token}",
@@ -61,6 +63,7 @@ def trigger_backup():
 
 
 def trigger_cleanup():
+    logging.info("Triggering cleanup")
     token = get_access_token()
     headers = {
         "Authorization": f"Bearer {token}",
@@ -78,10 +81,8 @@ def trigger_cleanup():
 
 
 if __name__ == "__main__":
-    logging.info("Starting backup job...")
     validate_environment_variables()
     if task == "backup":
         trigger_backup()
     if task == "cleanup":
         trigger_cleanup()
-    logging.info("Backup job completed.")

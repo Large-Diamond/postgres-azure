@@ -6,6 +6,8 @@ apiClientId=$(az keyvault secret show --vault-name p05 --name backup-api-client-
 cronJobClientId=$(az keyvault secret show --vault-name p05 --name backup-cron-job-client-id --query value --output tsv)
 latestTag=$(curl -s "https://registry.hub.docker.com/v2/repositories/mucsi96/postgres-azure-backup-job/tags/" | jq -r '.results |  map(select(.name != "latest")) | sort_by(.last_updated) | reverse | .[0].name')
 
+echo "Deploying mucsi96/postgres-azure-backup-job:$latestTag to backup.$host"
+
 helm upgrade postgres-azure-backup-cron-job backup-job/chart \
     --install \
     --force \
