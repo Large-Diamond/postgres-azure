@@ -66,6 +66,7 @@ def test_creates_backup(page: Page):
     expect(page.get_by_role("status").filter(
         has_text="Backup created")).to_be_visible()
     page.get_by_text("db1").click()
+    expect(page.get_by_role("heading", name="Backups")).to_have_text("Backups 1")
     table_data = list_without_keys(
         extract_table_data(page.locator(":text('Backups') + table")),
         ["Name", "Date"],
@@ -89,6 +90,7 @@ def test_creates_backup_with_retention(page: Page):
     expect(page.get_by_role("status").filter(
         has_text="Backup created")).to_be_visible()
     page.get_by_text("db1").click()
+    expect(page.get_by_role("heading", name="Backups")).to_have_text("Backups 1")
     table_data = list_without_keys(
         extract_table_data(page.locator(":text('Backups') + table")),
         ["Name", "Date"],
@@ -139,6 +141,7 @@ def test_cleans_up_outdated_backups(page: Page):
         page.get_by_role("status").filter(has_text="Cleanup finished")
     ).to_be_visible()
     page.get_by_text("db1").click()
+    expect(page.get_by_role("heading", name="Backups")).to_have_text("Backups 2")
     table_data = list_without_keys(
         extract_table_data(page.locator(":text('Backups') + table")),
         ["Name"],
