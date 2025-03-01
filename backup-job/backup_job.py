@@ -14,7 +14,7 @@ api_client_id = os.getenv("API_CLIENT_ID")
 def get_access_token():
     try:
         credential = WorkloadIdentityCredential()
-        token = credential.get_token(f"api://{api_client_id}/.default")
+        token = credential.get_token(f"{api_client_id}/.default")
         logging.info("Successfully obtained access token.")
         return token.token
     except Exception as e:
