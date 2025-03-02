@@ -1,13 +1,3 @@
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import {
-  MSAL_INSTANCE,
-  MSAL_INTERCEPTOR_CONFIG,
-  MsalBroadcastService,
-  MsalGuard,
-  MsalInterceptor,
-  MsalInterceptorConfiguration,
-  MsalService
-} from '@azure/msal-angular';
 import {
   BrowserCacheLocation,
   InteractionType,
@@ -16,6 +6,18 @@ import {
   PublicClientApplication,
 } from '@azure/msal-browser';
 import { environment } from '../environments/environment';
+import {
+  MSAL_GUARD_CONFIG,
+  MSAL_INSTANCE,
+  MSAL_INTERCEPTOR_CONFIG,
+  MsalBroadcastService,
+  MsalGuard,
+  MsalGuardConfiguration,
+  MsalInterceptor,
+  MsalInterceptorConfiguration,
+  MsalService,
+} from '@azure/msal-angular';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 function loggerCallback(_logLevel: LogLevel, message: string) {
   console.log(message);
@@ -67,6 +69,15 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   };
 }
 
+export function MSALGuardConfigFactory(): MsalGuardConfiguration {
+  return {
+    interactionType: InteractionType.Popup,
+    authRequest: {
+      scopes: ['user.read', ...apiScopes],
+    },
+  };
+}
+
 export function provideMsalConfig() {
   return [
     {
@@ -77,6 +88,10 @@ export function provideMsalConfig() {
     {
       provide: MSAL_INSTANCE,
       useFactory: MSALInstanceFactory,
+    },
+    {
+      provide: MSAL_GUARD_CONFIG,
+      useFactory: MSALGuardConfigFactory,
     },
     {
       provide: MSAL_INTERCEPTOR_CONFIG,
