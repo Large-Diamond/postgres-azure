@@ -28,8 +28,6 @@ export function MSALInstanceFactory(): IPublicClientApplication {
     auth: {
       clientId: environment.clientId,
       authority: `https://login.microsoftonline.com/${environment.tenantId}`,
-      redirectUri: '/auth',
-      postLogoutRedirectUri: '/',
     },
     cache: {
       cacheLocation: BrowserCacheLocation.SessionStorage,
