@@ -37,6 +37,7 @@ def test_shows_last_backup_time(page: Page):
 def test_shows_backups(page: Page):
     page.goto("http://localhost:8080")
     page.get_by_text("db1").click()
+    expect(page.get_by_role("heading", name="Backups")).to_have_text("Backups 2")
     table_data = list_without_keys(
         extract_table_data(page.locator(":text('Backups') + table")), ["Name"]
     )
