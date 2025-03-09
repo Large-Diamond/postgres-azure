@@ -13,7 +13,7 @@ import { environment } from '../environments/environment';
   providedIn: 'root',
 })
 export class AuthService {
-  readonly isAuthenticated = signal(!environment.mockAuth);
+  readonly isAuthenticated = signal(environment.mockAuth);
   readonly msalService = !environment.mockAuth
     ? inject(MsalService)
     : undefined;
