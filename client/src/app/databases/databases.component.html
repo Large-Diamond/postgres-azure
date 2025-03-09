@@ -1,10 +1,10 @@
-@if (loading()) {
+@if (databases.isLoading()) {
 <div role="progressbar" bt></div>
 } @else {
 <h2 bt>
-  Databases <span bt-badge>{{ databases()?.length }}</span>
+  Databases <span bt-badge>{{ databases.value()?.length }}</span>
 </h2>
-@if (databases()?.length) {
+@if (databases.value()?.length) {
 <table bt id="backups">
   <thead>
     <tr>
@@ -17,7 +17,7 @@
     </tr>
   </thead>
   <tbody>
-    @for (database of databases(); track database.name) {
+    @for (database of databases.value(); track database.name) {
     <tr (click)="selectDatabase(database)">
       <td bt-row-selector></td>
       <td bt-no-wrap bt-now-wrap bt-highlighted>{{ database.name }}</td>

@@ -1,0 +1,41 @@
+<div class="selected-database">
+  @if (databaseName()) {
+  <button bt bt-dropdown popovertarget="dropdown-menu-popover">
+    {{ databaseName() }}
+    <svg></svg>
+  </button>
+  <div popover bt id="dropdown-menu-popover" #popover>
+    <ul bt-dropdown-menu>
+      @for(database of databases.value(); track database.name) {
+      <li>
+        <a
+          routerLink="/database/{{ database.name }}"
+          (click)="popover.hidePopover()"
+          >{{ database.name }}</a
+        >
+      </li>
+      }
+    </ul>
+  </div>
+  @let time = lastBackupTime.value();
+  <h3 bt>
+    Last backup
+    <span
+      bt-badge
+      [attr.bt-green]="!olderThenOneDay(time) ? '' : null"
+      [attr.bt-red]="olderThenOneDay(time) ? '' : null"
+      >@if (time) {{{ time | relativeTime }}} @else { — }</span
+    >
+  </h3>
+  }
+  <button bt-avatar id="avatar" popovertarget="avatar-popover">
+    {{ profile.value()?.initials }}
+  </button>
+  <div popover bt id="avatar-popover">
+    <ul bt-dropdown-menu>
+      <li>
+        {{ profile.value()?.name }}
+      </li>
+    </ul>
+  </div>
+</div>

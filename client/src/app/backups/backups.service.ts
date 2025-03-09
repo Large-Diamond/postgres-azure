@@ -1,147 +1,111 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { SuccessNotificationEvent } from '@mucsi96/ui-elements';
+import { inject, Injectable, resource, signal } from '@angular/core';
 import {
-  BehaviorSubject,
-  filter,
-  finalize,
-  map,
-  Observable,
-  shareReplay,
-  skip,
-  switchMap,
-  take,
-  tap,
-} from 'rxjs';
+  ErrorNotificationEvent,
+  SuccessNotificationEvent,
+} from '@mucsi96/ui-elements';
 import { environment } from '../../environments/environment';
 import { Backup } from '../../types';
-import { handleError } from '../utils/handleError';
 import { SelectedDatabaseService } from '../database/selected-database.service';
+import { fetchJson } from '../utils/fetchJson';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BackupsService {
-  private $lastBackupTime: Observable<Date | undefined>;
-  private $backups: Observable<Backup[]>;
-  private readonly $backupMutations = new BehaviorSubject<void>(undefined);
-  private readonly loading = signal(true);
-  private readonly processing = signal(false);
+  private readonly http = inject(HttpClient);
+  private readonly selectedDatabaseService = inject(SelectedDatabaseService);
+  readonly processing = signal(false);
+  readonly backups = resource<Backup[], { databaseName?: string }>({
+    request: () => ({
+      databaseName: this.selectedDatabaseService.databaseName(),
+    }),
+    loader: async ({ request: { databaseName } }) => {
+      if (!databaseName) {
+        return [];
+      }
+      try {
+        const backups = await fetchJson<Backup[]>(
+          this.http,
+          environment.apiContextPath + `/database/${databaseName}/backups`
+        );
 
-  constructor(
-    private readonly http: HttpClient,
-    private readonly selectedDatabaseService: SelectedDatabaseService
-  ) {
-    this.$backups = this.selectedDatabaseService.getSelectedDatabase().pipe(
-      filter((databaseName) => !!databaseName),
-      switchMap((databaseName) =>
-        this.$backupMutations.pipe(
-          tap(() => this.loading.set(true)),
-          switchMap(() =>
-            this.http
-              .get<Backup[]>(
-                environment.apiContextPath + `/database/${databaseName}/backups`
-              )
-              .pipe(
-                map((backups) =>
-                  backups.map((backup) => ({
-                    ...backup,
-                    lastModified: new Date(backup.lastModified),
-                  }))
-                ),
-                handleError('Could not fetch backups.'),
-                finalize(() => this.loading.set(false))
-              )
-          )
-        )
-      ),
-      shareReplay(1)
-    );
-    this.$lastBackupTime = this.selectedDatabaseService
-      .getSelectedDatabase()
-      .pipe(
-        filter((databaseName) => !!databaseName),
-        switchMap((databaseName) =>
-          this.$backupMutations.pipe(
-            switchMap(() =>
-              this.http
-                .get<Date | undefined>(
-                  environment.apiContextPath +
-                    `/database/${databaseName}/last-backup-time`
-                )
-                .pipe(
-                  map(
-                    (lastBackupTime) =>
-                      lastBackupTime && new Date(lastBackupTime)
-                  ),
-                  handleError('Unable to fetch last backup time')
-                )
-            )
-          )
-        ),
-        shareReplay(1)
-      );
-  }
+        return backups.map((backup) => ({
+          ...backup,
+          lastModified: new Date(backup.lastModified),
+        }));
+      } catch (error) {
+        dispatchEvent(new ErrorNotificationEvent('Could not get backups.'));
+        return [];
+      }
+    },
+  });
+  readonly lastBackupTime = resource<
+    Date | undefined,
+    { databaseName?: string }
+  >({
+    request: () => ({
+      databaseName: this.selectedDatabaseService.databaseName(),
+    }),
+    loader: async ({ request: { databaseName } }) => {
+      if (!databaseName) {
+        return undefined;
+      }
+      try {
+        const lastBackupTime = await fetchJson<Date | undefined>(
+          this.http,
+          environment.apiContextPath +
+            `/database/${databaseName}/last-backup-time`
+        );
 
-  getLastBackupTime() {
-    return toSignal(this.$lastBackupTime);
-  }
+        return lastBackupTime && new Date(lastBackupTime);
+      } catch (error) {
+        dispatchEvent(
+          new ErrorNotificationEvent('Could not get last backup time.')
+        );
+        return undefined;
+      }
+    },
+  });
 
-  getBackups() {
-    return toSignal(this.$backups);
-  }
-
-  isLoading() {
-    return this.loading;
-  }
-
-  createBackup(retentionPeriod: number) {
-    this.http
-      .post<void>(
+  async createBackup(retentionPeriod: number) {
+    try {
+      this.processing.set(true);
+      await fetchJson<void>(
+        this.http,
         environment.apiContextPath +
           `/backup?retention_period=${retentionPeriod}`,
-        {}
-      )
-      .pipe(
-        handleError('Could not create backup.'),
-        tap(() => {
-          document.dispatchEvent(
-            new SuccessNotificationEvent('Backup created')
-          );
-          this.$backupMutations.next();
-        }),
-        finalize(() => this.processing.set(false)),
-        take(1)
-      )
-      .subscribe();
+        { method: 'post' }
+      );
+      document.dispatchEvent(new SuccessNotificationEvent('Backup created'));
+    } catch (error) {
+      document.dispatchEvent(
+        new ErrorNotificationEvent('Could not create backup.')
+      );
+    }
+    this.processing.set(false);
+    this.backups.reload();
+    this.lastBackupTime.reload();
   }
 
-  cleanupBackups() {
-    this.http
-      .post<void>(
+  async cleanupBackups() {
+    try {
+      this.processing.set(true);
+      await fetchJson<void>(
+        this.http,
         environment.apiContextPath + `/cleanup`,
-        {}
-      )
-      .pipe(
-        handleError('Could not cleanup backups'),
-        tap(() => {
-          document.dispatchEvent(
-            new SuccessNotificationEvent('Backup cleanup finished')
-          );
-          this.$backupMutations.next();
-        }),
-        finalize(() => this.processing.set(false)),
-        take(1)
-      )
-      .subscribe();
-  }
-
-  isProcessing() {
-    return this.processing;
-  }
-
-  getBackupMutations() {
-    return this.$backupMutations;
+        { method: 'post' }
+      );
+      document.dispatchEvent(
+        new SuccessNotificationEvent('Backup cleanup finished')
+      );
+    } catch (error) {
+      document.dispatchEvent(
+        new ErrorNotificationEvent('Could not cleanup backups')
+      );
+    }
+    this.processing.set(false);
+    this.backups.reload();
+    this.lastBackupTime.reload();
   }
 }

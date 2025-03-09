@@ -1,5 +1,4 @@
-import { Component, computed, Signal } from '@angular/core';
-import { Table } from '../../types';
+import { Component, computed, inject } from '@angular/core';
 import { BackupsService } from '../backups/backups.service';
 import { TablesService } from './tables.service';
 
@@ -10,22 +9,14 @@ import { TablesService } from './tables.service';
   styleUrl: './tables.component.css',
 })
 export class TablesComponent {
-  totalRowCount: Signal<number | undefined>;
-  tables: Signal<Table[] | undefined>;
-  processing: Signal<boolean>;
-  loading: Signal<boolean>;
-
-  constructor(
-    private readonly tableService: TablesService,
-    private readonly backupsService: BackupsService
-  ) {
-    this.tables = this.tableService.getTables();
-    this.totalRowCount = this.tableService.getTotalRowCount();
-    this.loading = this.tableService.isLoading();
-    this.processing = computed(
-      () =>
-        this.tableService.isProcessing()() ||
-        this.backupsService.isProcessing()()
-    );
-  }
+  private readonly tabeService = inject(TablesService);
+  private readonly backupsService = inject(BackupsService);
+  readonly tableData = this.tabeService.tables;
+  tables = computed(() => this.tableData.value()?.tables);
+  totalRowCount = computed(
+    () => this.tableData.value()?.totalRowCount
+  );
+  processing = computed(
+    () => this.tabeService.processing() || this.backupsService.processing()
+  );
 }

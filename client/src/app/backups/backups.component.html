@@ -1,10 +1,10 @@
-@if (loading()) {
+@if (backups.isLoading()) {
 <div role="progressbar" bt></div>
 } @else {
 <h2 bt>
-  Backups <span bt-badge>{{ backups()?.length }}</span>
+  Backups <span bt-badge>{{ backups.value()?.length }}</span>
 </h2>
-@if (backups()?.length) {
+@if (backups.value()?.length) {
 <table bt id="backups">
   <thead>
     <tr>
@@ -18,7 +18,7 @@
     </tr>
   </thead>
   <tbody>
-    @for (backup of backups(); track backup.name) {
+    @for (backup of backups.value(); track backup.name) {
     <tr
       (click)="selectBackup(backup)"
       [attr.aria-selected]="backup.name === selectedBackup()"

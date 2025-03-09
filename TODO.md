@@ -1,3 +1,1 @@
-- migrate to angular 19 and resource
 - drop @mucsi96/ui-elements in favor of angular/material
-- deploy backup job with help
