@@ -1,6 +1,19 @@
 from playwright.sync_api import Page, expect
 from utils import cleanup_backups, cleanup_db, extract_table_data, get_db1_tables
 
+def test_switches_to_other_db(page: Page):
+    page.goto("http://localhost:8080")
+    page.get_by_text("db1").click()
+    page.get_by_role("button", name="db1").click()
+    page.get_by_role("link", name="db2").click()
+    expect(page.get_by_role("heading", name="Records")).to_have_text("Records 17")
+    expect(page.get_by_role("heading", name="Tables")).to_have_text("Tables 3")
+    table_data = extract_table_data(page.locator((":text('Tables') + table")))
+    assert table_data == [
+        {"Name": "animals", "Records": "6"},
+        {"Name": "countries", "Records": "6"},
+        {"Name": "books", "Records": "5"},
+    ]
 
 def test_shows_total_record_count_in_db(page: Page):
     page.goto("http://localhost:8080")

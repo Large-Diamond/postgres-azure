@@ -59,6 +59,16 @@ def test_shows_backups(page: Page):
         },
     ]
 
+def test_switches_to_other_db(page: Page):
+    page.goto("http://localhost:8080")
+    page.get_by_text("db1").click()
+    page.get_by_role("button", name="db1").click()
+    page.get_by_role("link", name="db2").click()
+    expect(page.get_by_role("heading", name="Last backup")).to_have_text(
+        "Last backup —"
+    )
+    expect(page.get_by_role("heading", name="Backups")).to_have_text("Backups 0")
+
 
 def test_creates_backup(page: Page):
     cleanup_backups()
