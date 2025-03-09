@@ -14,8 +14,12 @@ import { environment } from '../environments/environment';
 })
 export class AuthService {
   readonly isAuthenticated = signal(false);
-  readonly msalService = inject(MsalService);
-  readonly msalBroadcastService = inject(MsalBroadcastService);
+  readonly msalService = !environment.mockAuth
+    ? inject(MsalService)
+    : undefined;
+  readonly msalBroadcastService = !environment.mockAuth
+    ? inject(MsalBroadcastService)
+    : undefined;
 
   constructor() {
     if (environment.mockAuth) {
@@ -23,22 +27,25 @@ export class AuthService {
       return;
     }
 
-    this.msalBroadcastService.msalSubject$
+    this.msalBroadcastService?.msalSubject$
       .pipe(
         filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS)
       )
       .subscribe((result: EventMessage) => {
         console.log(result);
         const payload = result.payload as AuthenticationResult;
-        this.msalService.instance.setActiveAccount(payload.account);
+        this.msalService?.instance.setActiveAccount(payload.account);
       });
 
-    this.msalBroadcastService.inProgress$
+    this.msalBroadcastService?.inProgress$
       .pipe(
         filter((status: InteractionStatus) => status === InteractionStatus.None)
       )
       .subscribe(() => {
-        if (this.msalService.instance.getAllAccounts().length > 0) {
+        if (
+          this.msalService &&
+          this.msalService.instance.getAllAccounts().length > 0
+        ) {
           this.isAuthenticated.set(true);
         }
       });
