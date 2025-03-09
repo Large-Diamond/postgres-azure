@@ -13,7 +13,7 @@ import { environment } from '../environments/environment';
   providedIn: 'root',
 })
 export class AuthService {
-  readonly isAuthenticated = signal(false);
+  readonly isAuthenticated = signal(!environment.mockAuth);
   readonly msalService = !environment.mockAuth
     ? inject(MsalService)
     : undefined;
@@ -22,11 +22,6 @@ export class AuthService {
     : undefined;
 
   constructor() {
-    if (environment.mockAuth) {
-      this.isAuthenticated.set(true);
-      return;
-    }
-
     this.msalBroadcastService?.msalSubject$
       .pipe(
         filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS)
