@@ -7,7 +7,7 @@ spec:
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
-  schedule: "30 6 2-31 * 0" # At 06:30 on every day-of-month from 2 through 31 and on Sunday.
+  schedule: "30 6 * * 0" # Run every Sunday at 6:30 AM
   jobTemplate:
     spec:
       backoffLimit: 0
