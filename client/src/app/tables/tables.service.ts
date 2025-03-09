@@ -1,131 +1,90 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { SuccessNotificationEvent } from '@mucsi96/ui-elements';
+import { inject, Injectable, resource, signal } from '@angular/core';
 import {
-  BehaviorSubject,
-  filter,
-  finalize,
-  map,
-  Observable,
-  shareReplay,
-  skip,
-  switchMap,
-  take,
-  tap,
-} from 'rxjs';
+  ErrorNotificationEvent,
+  SuccessNotificationEvent,
+} from '@mucsi96/ui-elements';
 import { environment } from '../../environments/environment';
 import { Table } from '../../types';
-import { handleError } from '../utils/handleError';
 import { SelectedDatabaseService } from '../database/selected-database.service';
+import { fetchJson } from '../utils/fetchJson';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TablesService {
-  private $tables: Observable<{
-    tables: Table[];
-    totalRowCount: number;
-  }>;
-  private readonly $tableMutations = new BehaviorSubject<void>(undefined);
-  private readonly loading = signal(true);
-  private readonly processing = signal(false);
+  private readonly http = inject(HttpClient);
+  private readonly selectedDatabaseService = inject(SelectedDatabaseService);
+  readonly processing = signal(false);
+  readonly tables = resource<
+    {
+      tables: Table[];
+      totalRowCount: number;
+    },
+    { databaseName?: string }
+  >({
+    request: () => ({
+      databaseName: this.selectedDatabaseService.databaseName(),
+    }),
+    loader: async ({ request: { databaseName } }) => {
+      if (!databaseName) {
+        return { tables: [], totalRowCount: 0 };
+      }
+      try {
+        const response = await fetchJson<{
+          tables: Table[];
+          totalRowCount: number;
+        }>(
+          this.http,
+          environment.apiContextPath + `/database/${databaseName}/tables`
+        );
+        return response;
+      } catch (error) {
+        dispatchEvent(new ErrorNotificationEvent('Could not get tables.'));
+        return { tables: [], totalRowCount: 0 };
+      }
+    },
+  });
 
-  constructor(
-    private readonly http: HttpClient,
-    private readonly selectedDatabaseService: SelectedDatabaseService
-  ) {
-    this.$tables = this.selectedDatabaseService.getSelectedDatabase().pipe(
-      switchMap((databaseName) =>
-        this.$tableMutations.pipe(
-          filter(() => !!databaseName),
-          tap(() => this.loading.set(true)),
-          switchMap(() =>
-            this.http
-              .get<{
-                tables: Table[];
-                totalRowCount: number;
-              }>(
-                environment.apiContextPath + `/database/${databaseName}/tables`
-              )
-              .pipe(
-                handleError('Could not fetch tables.'),
-                finalize(() => this.loading.set(false))
-              )
-          )
-        )
-      ),
-      shareReplay(1)
-    );
+  async restoreBackup(selectedBackup: string) {
+    const databaseName = this.selectedDatabaseService.databaseName();
+    if (!databaseName) {
+      return;
+    }
+    try {
+      this.processing.set(true);
+      await fetchJson<void>(
+        this.http,
+        environment.apiContextPath +
+          `/database/${databaseName}/restore/${selectedBackup}`,
+        { method: 'post' }
+      );
+      document.dispatchEvent(new SuccessNotificationEvent('Backup restored'));
+      this.tables.reload();
+    } catch (error) {
+      dispatchEvent(new ErrorNotificationEvent('Could not restore backup.'));
+    }
+    this.processing.set(false);
+    this.tables.reload();
   }
 
-  getTables() {
-    return toSignal(this.$tables.pipe(map((data) => data.tables)));
+  async downloadBackup(selectedBackup: string, type: 'plain' | 'archive') {
+    const databaseName = this.selectedDatabaseService.databaseName();
+    if (!databaseName) {
+      return;
+    }
+    try {
+      const { url } = await fetchJson<{ url: string }>(
+        this.http,
+        environment.apiContextPath +
+          `/database/${databaseName}/backup/${selectedBackup}?type=${type}`
+      );
+      window
+        .open(url, '_blank')
+        ?.focus();
+    } catch (error) {
+      dispatchEvent(new ErrorNotificationEvent('Could not download backup.'));
+    }
   }
 
-  getTotalRowCount() {
-    return toSignal(this.$tables.pipe(map((data) => data.totalRowCount)));
-  }
-
-  isLoading() {
-    return this.loading;
-  }
-
-  restoreBackup(selectedBackup: string) {
-    this.selectedDatabaseService
-      .getSelectedDatabase()
-      .pipe(
-        tap(() => this.processing.set(true)),
-        switchMap((databaseName) =>
-          this.http
-            .post<void>(
-              environment.apiContextPath +
-                `/database/${databaseName}/restore/${selectedBackup}`,
-              {}
-            )
-            .pipe(
-              handleError('Could not restore backup.'),
-              tap(() => {
-                document.dispatchEvent(
-                  new SuccessNotificationEvent('Backup restored')
-                );
-                this.$tableMutations.next();
-              }),
-              finalize(() => this.processing.set(false))
-            )
-        ),
-        take(1)
-      )
-      .subscribe();
-  }
-
-  downloadBackup(selectedBackup: string, type: 'plain' | 'archive') {
-    this.selectedDatabaseService
-      .getSelectedDatabase()
-      .pipe(
-        tap(() => this.processing.set(true)),
-        switchMap((databaseName) =>
-          this.http
-            .get<{ url: string }>(
-              environment.apiContextPath +
-                `/database/${databaseName}/backup/${selectedBackup}?type=${type}`
-            )
-            .pipe(
-              handleError('Could not download backup.'),
-              tap(({ url }) => window.open(url, '_blank')),
-              finalize(() => this.processing.set(false))
-            )
-        ),
-        take(1)
-      )
-      .subscribe();
-  }
-
-  isProcessing() {
-    return this.processing;
-  }
-
-  getTableMutations() {
-    return this.$tableMutations;
-  }
 }

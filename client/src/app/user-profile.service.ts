@@ -1,28 +1,33 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map, of } from 'rxjs';
+import { Injectable, inject, resource } from '@angular/core';
 import { environment } from '../environments/environment';
+import { fetchJson } from './utils/fetchJson';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserProfileService {
   private readonly http = inject(HttpClient);
-  $profile = environment.mockAuth
-    ? of({ name: 'Test User', initials: 'TU' })
-    : this.http
-        .get<{ displayName: string }>('https://graph.microsoft.com/v1.0/me')
-        .pipe(
-          map(({ displayName }) => ({
-            name: displayName,
-            initials: this.getInitials(displayName),
-          }))
-        );
+  profile = resource<{ name: string; initials: string } | undefined, {}>({
+    loader: async () => {
+      if (environment.mockAuth) {
+        return { name: 'Test User', initials: 'TU' };
+      }
 
-  getProfile() {
-    return toSignal(this.$profile);
-  }
+      try {
+        const { displayName } = await fetchJson<{ displayName: string }>(
+          this.http,
+          'https://graph.microsoft.com/v1.0/me'
+        );
+        return {
+          name: displayName,
+          initials: this.getInitials(displayName),
+        };
+      } catch (error) {
+        return;
+      }
+    },
+  });
 
   private getInitials(name: string | undefined): string {
     if (!name) return '';

@@ -1,4 +1,4 @@
-import { Component, signal, Signal } from '@angular/core';
+import { Component, inject, signal, Signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Database } from '../../types';
 import { BackupsService } from '../backups/backups.service';
@@ -15,21 +15,13 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './databases.component.css',
 })
 export class DatabasesComponent {
-  databases: Signal<Database[] | undefined>;
-  loading: Signal<boolean>;
+  private readonly databasesService = inject(DatabasesService);
+  private readonly backupsService = inject(BackupsService);
+  private readonly router = inject(Router);
+  databases = this.databasesService.databases;
   olderThenOneDay = olderThenOneDay;
   retentionPeriod = signal(1);
-  processing: Signal<boolean>;
-
-  constructor(
-    private readonly databasesService: DatabasesService,
-    private readonly backupsService: BackupsService,
-    private readonly router: Router
-  ) {
-    this.databases = this.databasesService.getDatabases();
-    this.loading = this.databasesService.isLoading();
-    this.processing = this.backupsService.isProcessing();
-  }
+  processing = this.backupsService.processing;
 
   selectDatabase(database: Database) {
     this.router.navigate(['/database', database.name]);

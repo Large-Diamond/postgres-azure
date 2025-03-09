@@ -1,41 +1,19 @@
-import { Component, ElementRef, Signal, ViewChild } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { Database } from '../types';
-import { BackupsService } from './backups/backups.service';
+import { AuthService } from './auth.service';
 import { SelectedDatabaseService } from './database/selected-database.service';
-import { DatabasesService } from './databases/databases.service';
-import { olderThenOneDay } from './utils/dateUtils';
-import { RelativeTimePipe } from './utils/relativeTime.pipe';
-import { UserProfileService } from './user-profile.service';
+import { HeaderComponent } from './header/header.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RelativeTimePipe, RouterLink],
+  imports: [RouterOutlet, RouterLink, HeaderComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  databaseName: Signal<string | undefined>;
-  databases: Signal<Database[] | undefined>;
-  lastBackupTime: Signal<Date | undefined>;
-  olderThenOneDay = olderThenOneDay;
-  profile: Signal<{ name: string; initials: string } | undefined>;
-
-  @ViewChild('popover') popover!: ElementRef;
-
-  constructor(
-    private readonly databasesService: DatabasesService,
-    private readonly selectedDatabaseService: SelectedDatabaseService,
-    private readonly backupsService: BackupsService,
-    private readonly userProfileService: UserProfileService
-  ) {
-    this.databases = this.databasesService.getDatabases();
-    this.databaseName =
-      this.selectedDatabaseService.getSelectedDatabaseSignal();
-    this.lastBackupTime = this.backupsService.getLastBackupTime();
-    this.profile = this.userProfileService.getProfile();
-  }
+  selectedDatabaseService = inject(SelectedDatabaseService);
+  isAuthenticated = inject(AuthService).isAuthenticated;
 
   resetSelectedDatabase() {
     this.selectedDatabaseService.resetSelectedDatabase();

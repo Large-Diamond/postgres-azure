@@ -1,8 +1,7 @@
 import {
   Component,
-  signal,
-  Signal,
-  WritableSignal
+  inject,
+  signal
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,19 +26,12 @@ import { BackupsService } from './backups.service';
   styleUrl: './backups.component.css',
 })
 export class BackupsComponent {
-  backups: Signal<Backup[] | undefined>;
-  processing: Signal<boolean>;
-  loading: Signal<boolean>;
-  selectedBackup: WritableSignal<string | undefined> = signal(undefined);
-
-  constructor(
-    private readonly backupsService: BackupsService,
-    private readonly tableService: TablesService
-  ) {
-    this.backups = this.backupsService.getBackups();
-    this.processing = this.backupsService.isProcessing();
-    this.loading = this.backupsService.isLoading();
-  }
+  private readonly backupsService = inject(BackupsService);
+  private readonly tableService = inject(TablesService);
+  backups = this.backupsService.backups;
+  processing = this.backupsService.processing;
+  loading = this.backupsService.backups.isLoading();
+  selectedBackup = signal<string | undefined>(undefined);
 
   restoreBackup() {
     const selectedBackup = this.selectedBackup();
