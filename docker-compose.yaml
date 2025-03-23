@@ -26,8 +26,6 @@ services:
       STORAGE_ACCOUNT_BLOB_URL: "https://blobstorage:10000/devstoreaccount1"
       STORAGE_ACCOUNT_CONTAINER_NAME: "backups"
       DATABASES_CONFIG_PATH: /app/databases_config.json
-    env_file:
-      - .env
     ports:
       - "8080:8080"
     volumes:
