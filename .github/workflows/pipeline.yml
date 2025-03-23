@@ -21,7 +21,7 @@ jobs:
           cache: "pip"
       - run: pip install -r requirements.txt
       - run: playwright install chromium --with-deps
-      - run: echo "SPRING_PROFILES_ACTIVE=test" > .env
+      - run: touch .env
       - run: docker compose up --build --wait
       - run: pytest
       - name: Upload screenshots
