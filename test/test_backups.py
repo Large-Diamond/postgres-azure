@@ -214,10 +214,9 @@ def test_downloads_backup_plain(page: Page):
     response = page.request.get(download_info.value.url)
     assert response.status == 200
     assert "CREATE SCHEMA test1" in response.text()
-    assert "COPY test1.fruites (name) FROM stdin" in response.text()
-    assert "Apple" in response.text()
-    assert "Orange" in response.text()
-    assert "Banana" in response.text()
-    assert "Rasberry" in response.text()
+    assert "INSERT INTO test1.fruites (name) VALUES ('Apple');" in response.text()
+    assert "INSERT INTO test1.fruites (name) VALUES ('Orange');" in response.text()
+    assert "INSERT INTO test1.fruites (name) VALUES ('Banana');" in response.text()
+    assert "INSERT INTO test1.fruites (name) VALUES ('Rasberry');" in response.text()
 
 
