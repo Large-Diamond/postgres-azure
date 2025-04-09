@@ -89,7 +89,8 @@ public class DatabaseService {
                 List.of("pg_dump", "--dbname",
                         databaseConfiguration.getConnectionString(), "--schema",
                         databaseConfiguration.getSchema(), "--format", format,
-                        "--file", filename),
+                        "--file", filename,
+                        "plain".equals(format) ? "--column-inserts" : ""),
                 databaseConfiguration.getExcludeTables().stream()
                         .flatMap(table -> {
                             String fullTableName = databaseConfiguration
@@ -97,7 +98,7 @@ public class DatabaseService {
                             return List.of("--exclude-table", fullTableName)
                                     .stream();
                         }).toList())
-                .flatMap(x -> x.stream()).toList();
+                .flatMap(x -> x.stream()).filter(arg -> !arg.isEmpty()).toList();
 
         System.out.println("Creating dump: " + String.join(", ", commands));
 
