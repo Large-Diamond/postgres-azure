@@ -64,7 +64,7 @@ services:
       - mkcert:ro
 
   db1:
-    image: "postgres:16.2-bullseye"
+    image: "postgres:16.9-bullseye"
     environment:
       POSTGRES_DB: "test"
       POSTGRES_PASSWORD: "postgres"
@@ -78,7 +78,7 @@ services:
       retries: 5
 
   db2:
-    image: "postgres:16.2-bullseye"
+    image: "postgres:16.9-bullseye"
     environment:
       POSTGRES_DB: "test"
       POSTGRES_PASSWORD: "postgres"
