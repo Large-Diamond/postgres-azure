@@ -7,7 +7,7 @@ COPY server .
 RUN mvn package -DskipTests -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
-FROM node:22 AS build-client
+FROM node:24 AS build-client
 
 WORKDIR /workspace/client
 
@@ -17,7 +17,7 @@ RUN npm install
 COPY client .
 RUN npm run build
 
-FROM bellsoft/liberica-openjre-alpine-musl:22
+FROM bellsoft/liberica-openjre-alpine-musl:24
 
 VOLUME /tmp
 
