@@ -16,5 +16,6 @@ helm upgrade postgres-azure-backup-cron-job backup-job/chart \
     --namespace backup \
     --set image=mucsi96/postgres-azure-backup-job:$latestTag \
     --set clientId=$cronJobClientId \
+    --set serviceAccountName=postgres-azure-backup-cron-job-workload-identity \
     --set env.API_CLIENT_ID=$apiClientId \
     --wait
