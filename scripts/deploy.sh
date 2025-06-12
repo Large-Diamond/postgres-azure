@@ -26,6 +26,8 @@ latestTag=$(curl -s "https://registry.hub.docker.com/v2/repositories/mucsi96/pos
 
 echo "Deploying mucsi96/postgres-azure-backup:$latestTag to https://backup.$host"
 
+helm repo update
+
 helm upgrade postgres-azure-backup mucsi96/spring-app \
     --install \
     --force \
