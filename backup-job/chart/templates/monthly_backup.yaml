@@ -18,7 +18,7 @@ spec:
           annotations:
             checksum/secret_env: {{ include (print $.Template.BasePath "/secret_env.yaml") . | sha256sum }}
         spec:
-          serviceAccountName: {{ .Release.Name }}
+          serviceAccountName: {{ .Values.serviceAccountName }}
           containers:
           - name: {{ .Release.Name }}
             image: {{ .Values.image }}
