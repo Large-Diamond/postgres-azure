@@ -9,6 +9,8 @@ latestTag=$(curl -s "https://registry.hub.docker.com/v2/repositories/mucsi96/pos
 
 echo "Deploying mucsi96/postgres-azure-backup-job:$latestTag to backup.$host"
 
+helm repo update
+
 helm upgrade postgres-azure-backup-cron-job backup-job/chart \
     --install \
     --force \
