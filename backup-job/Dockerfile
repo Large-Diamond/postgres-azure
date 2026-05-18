@@ -1,4 +1,4 @@
-FROM python:3.13-slim AS builder
+FROM python:3.14-slim AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir --prefix=/install azure-identity requests
 
 
 # Final image
-FROM python:3.13-slim
+FROM python:3.14-slim
 
 WORKDIR /app
 
